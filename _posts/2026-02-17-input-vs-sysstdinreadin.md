@@ -4,6 +4,7 @@ title: "input() vs sys.stdin.readin()"
 date: 2026-02-17 10:41:06 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/input-vs-sys.stdin.readin"
+tags: ['algorithm', 'python']
 ---
 
 input() vs sys.stdin.readin() input은 내부적으로 처리가 느리다. 

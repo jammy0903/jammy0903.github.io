@@ -4,6 +4,7 @@ title: "구간합(Prefix Sum)"
 date: 2025-02-18 00:18:10 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/%EA%B5%AC%EA%B0%84%ED%95%A9Prefix-Sum"
+tags: ['algorithm', 'python']
 ---
 
   1. 구간합의 수학적 정의

@@ -4,6 +4,7 @@ title: "Iterable VS Iterator"
 date: 2025-03-11 03:40:34 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/Iterable-VS-Iterator"
+tags: ['python']
 ---
 
 -몰라도 잘 살지만 알면 좋은 정보-
