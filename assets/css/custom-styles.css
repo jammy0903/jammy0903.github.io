@@ -1,0 +1,23 @@
+/* Post number badge */
+.post-number {
+  display: inline-block;
+  font-size: 0.6em;
+  font-weight: 600;
+  color: #fff;
+  background: #008AFF;
+  border-radius: 4px;
+  padding: 2px 7px;
+  margin-right: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.5px;
+  position: relative;
+  top: -2px;
+}
+
+/* Post number in header (individual post page) */
+.post-number-header {
+  font-size: 0.45em;
+  padding: 3px 10px;
+  margin-right: 10px;
+  top: -4px;
+}

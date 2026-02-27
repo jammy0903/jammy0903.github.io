@@ -78,6 +78,9 @@ footer-hover-col: "#0085A1"
 
 date_format: "%Y-%m-%d"
 
+site-css:
+  - "/assets/css/custom-styles.css"
+
 #################################################################################
 # --- You don't need to touch anything below here (but you can if you want) --- #
 #################################################################################

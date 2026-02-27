@@ -1,4 +1,5 @@
 ---
+post_number: 9
 layout: post
 title: "죽고싶다. Alma Linux 깔다가 D드라이브 덮어썼다"
 date: 2025-03-07 00:49:20 +0900

@@ -1,4 +1,5 @@
 ---
+post_number: 6
 layout: post
 title: "투 포인터(Two Pointers)"
 date: 2025-02-18 00:36:03 +0900
