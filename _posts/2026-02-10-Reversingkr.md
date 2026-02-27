@@ -2,7 +2,7 @@
 post_number: 17
 layout: post
 title: "Reversing.kr #"
-date: 2026-02-10 08:49:11 +0900
+date: 2026-02-10 17:49:11 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/Reversing.kr"
 tags: ['reversing', 'security']

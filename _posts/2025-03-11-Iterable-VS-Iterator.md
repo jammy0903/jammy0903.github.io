@@ -2,7 +2,7 @@
 post_number: 10
 layout: post
 title: "Iterable VS Iterator"
-date: 2025-03-11 03:40:34 +0900
+date: 2025-03-11 12:40:34 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/Iterable-VS-Iterator"
 tags: ['python']

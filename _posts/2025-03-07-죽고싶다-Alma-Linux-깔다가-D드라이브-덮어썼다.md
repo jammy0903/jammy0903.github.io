@@ -2,7 +2,7 @@
 post_number: 9
 layout: post
 title: "죽고싶다. Alma Linux 깔다가 D드라이브 덮어썼다"
-date: 2025-03-07 00:49:20 +0900
+date: 2025-03-07 09:49:20 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/%EC%A3%BD%EA%B3%A0%EC%8B%B6%EB%8B%A4.-Alma-Linux-%EA%B9%94%EB%8B%A4%EA%B0%80-D%EB%93%9C%EB%9D%BC%EC%9D%B4%EB%B8%8C-%EB%8D%AE%EC%96%B4%EC%8D%BC%EB%8B%A4"
 tags: ['linux']

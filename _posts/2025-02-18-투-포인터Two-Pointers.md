@@ -2,7 +2,7 @@
 post_number: 6
 layout: post
 title: "투 포인터(Two Pointers)"
-date: 2025-02-18 00:36:03 +0900
+date: 2025-02-18 09:36:03 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/%ED%88%AC-%ED%8F%AC%EC%9D%B8%ED%84%B0Two-Pointers"
 tags: ['algorithm', 'python']
