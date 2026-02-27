@@ -1,5 +1,5 @@
 ---
-post_number: 17
+post_number: 7
 layout: post
 title: "Reversing.kr #"
 date: 2025-02-10 17:49:11 +0900

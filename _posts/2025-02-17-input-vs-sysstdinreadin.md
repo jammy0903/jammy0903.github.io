@@ -1,5 +1,5 @@
 ---
-post_number: 19
+post_number: 9
 layout: post
 title: "input() vs sys.stdin.readin()"
 date: 2025-02-17 19:41:06 +0900
