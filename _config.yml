@@ -17,8 +17,8 @@ baseurl: ""
 
 navbar-links:
   Home: ""
+  Posts: "posts"
   About: "aboutme"
-  Tags: "tags"
 
 ################
 # --- Logo --- #
