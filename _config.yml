@@ -1,0 +1,31 @@
+title: "알게되어 뿌듯한 걸 적는 블로그"
+description: "jammy0903의 개발 블로그"
+url: "https://jammy0903.github.io"
+baseurl: ""
+
+# Build settings
+theme: minima
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+# Author
+author:
+  name: jammy0903
+
+# Permalink
+permalink: /:year/:month/:day/:title/
+
+# Markdown
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Pagination
+show_excerpts: true
+
+# Encoding
+encoding: utf-8
