@@ -2,7 +2,7 @@
 post_number: 19
 layout: post
 title: "input() vs sys.stdin.readin()"
-date: 2026-02-17 19:41:06 +0900
+date: 2025-02-17 19:41:06 +0900
 categories: blog
 original_url: "https://velog.io/@jammy0903/input-vs-sys.stdin.readin"
 tags: ['algorithm', 'python']
