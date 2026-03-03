@@ -60,17 +60,17 @@ edit_page_button: false
 # --- Colours / background image --- #
 ######################################
 
-page-col: "#FFFFFF"
-text-col: "#404040"
-link-col: "#008AFF"
-hover-col: "#0085A1"
-navbar-col: "#F5F5F5"
-navbar-text-col: "#404040"
-navbar-border-col: "#DDDDDD"
-footer-col: "#F5F5F5"
-footer-text-col: "#777777"
-footer-link-col: "#404040"
-footer-hover-col: "#0085A1"
+page-col: "#FFFAF9"
+text-col: "#4A4453"
+link-col: "#C4727F"
+hover-col: "#A85B6A"
+navbar-col: "#FFFAF9"
+navbar-text-col: "#6B5E6E"
+navbar-border-col: "#F0E6EB"
+footer-col: "#FAF5F7"
+footer-text-col: "#9B8E9E"
+footer-link-col: "#6B5E6E"
+footer-hover-col: "#A85B6A"
 
 ################
 # --- Misc --- #
@@ -116,6 +116,7 @@ exclude:
   - LICENSE
   - README.md
   - migrate_velog.py
+  - vendor
 
 plugins:
   - jekyll-paginate

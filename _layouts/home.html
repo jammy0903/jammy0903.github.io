@@ -83,7 +83,6 @@ layout: page
 
       {% if site.feed_show_tags != false and post.tags.size > 0 %}
       <div class="blog-tags">
-        <span>Tags:</span>
         <!-- role="list" needed so that `list-style: none` in Safari doesn't remove the list semantics -->
         <ul class="d-inline list-inline" role="list">
           {% for tag in post.tags %}
@@ -105,16 +104,16 @@ layout: page
   {% if paginator.previous_page %}
   <li class="page-item previous">
     <a class="page-link" href="{{ paginator.previous_page_path | absolute_url }}">
-      <i class="fas fa-arrow-left" alt="Newer Posts"></i>
-      <span class="d-none d-sm-inline-block">Newer Posts</span>
+      <i class="fas fa-arrow-left" alt="새 글"></i>
+      <span class="d-none d-sm-inline-block">새 글</span>
     </a>
   </li>
   {% endif %}
   {% if paginator.next_page %}
   <li class="page-item next">
     <a class="page-link" href="{{ paginator.next_page_path | absolute_url }}">
-      <span class="d-none d-sm-inline-block">Older Posts</span>
-      <i class="fas fa-arrow-right" alt="Older Posts"></i>
+      <span class="d-none d-sm-inline-block">이전 글</span>
+      <i class="fas fa-arrow-right" alt="이전 글"></i>
     </a>
   </li>
   {% endif %}
