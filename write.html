@@ -1,0 +1,278 @@
+---
+layout: page
+title: "새 글 쓰기"
+subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행하세요"
+---
+
+<style>
+.write-section {
+  background: #fff;
+  border-radius: 10px;
+  padding: 22px 24px;
+  margin-bottom: 20px;
+  border: 1px solid #f0e6eb;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+.write-section h5 {
+  margin-top: 0;
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: #4a4453;
+  font-size: 1rem;
+  border-bottom: 2px solid #f0e6eb;
+  padding-bottom: 10px;
+}
+.EasyMDEContainer .CodeMirror {
+  min-height: 420px;
+  font-size: 15px;
+  border-radius: 0 0 6px 6px;
+}
+.EasyMDEContainer .editor-toolbar {
+  border-radius: 6px 6px 0 0;
+  background: #faf5f7;
+}
+.token-ok { color: #28a745; font-size: 13px; font-weight: 600; }
+.btn-publish {
+  background: #c4727f;
+  border-color: #c4727f;
+  color: #fff;
+  font-weight: 600;
+  padding: 10px 32px;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: background 0.2s;
+  cursor: pointer;
+  border: none;
+}
+.btn-publish:hover { background: #a85b6a; }
+.form-label { font-weight: 600; color: #4a4453; margin-bottom: 5px; display: block; }
+.form-control:focus { border-color: #c4727f; box-shadow: 0 0 0 0.2rem rgba(196,114,127,0.18); outline: none; }
+#status-message { margin-top: 18px; border-radius: 8px; padding: 14px 18px; display: none; }
+.required-star { color: #c4727f; }
+.slug-preview { font-size: 12px; color: #9b8e9e; margin-top: 5px; font-family: monospace; }
+.gap-2 { gap: 8px; }
+</style>
+
+<!-- 1. GitHub 인증 -->
+<div class="write-section">
+  <h5>🔑 GitHub 인증</h5>
+  <div class="input-group">
+    <input type="password" id="github-token" class="form-control"
+      placeholder="GitHub Personal Access Token (Contents: Read &amp; Write 권한 필요)">
+    <button class="btn btn-outline-secondary" type="button" onclick="saveToken()">저장</button>
+    <button class="btn btn-outline-danger"    type="button" onclick="clearToken()">삭제</button>
+  </div>
+  <div class="mt-2" style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+    <small class="text-muted">토큰은 이 브라우저의 localStorage에만 저장됩니다.</small>
+    <small><a href="https://github.com/settings/tokens/new?scopes=repo&description=Blog+Write+Page" target="_blank">토큰 발급 →</a></small>
+    <span id="token-status" class="token-ok" style="display:none;">✔ 저장됨</span>
+  </div>
+</div>
+
+<!-- 2. 포스트 메타데이터 -->
+<div class="write-section">
+  <h5>📋 포스트 정보</h5>
+
+  <div class="mb-3">
+    <label class="form-label">제목 <span class="required-star">*</span></label>
+    <input type="text" id="post-title" class="form-control form-control-lg"
+      placeholder="포스트 제목을 입력하세요" oninput="updateSlugPreview()">
+    <div class="slug-preview" id="slug-preview"></div>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">부제목 <small style="font-weight:normal; color:#9b8e9e;">(선택)</small></label>
+    <input type="text" id="post-subtitle" class="form-control" placeholder="부제목">
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 mb-3">
+      <label class="form-label">날짜</label>
+      <input type="date" id="post-date" class="form-control" onchange="updateSlugPreview()">
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label">카테고리</label>
+      <input type="text" id="post-categories" class="form-control" value="blog" placeholder="blog">
+    </div>
+    <div class="col-md-4 mb-3">
+      <label class="form-label">태그 <small style="font-weight:normal; color:#9b8e9e;">(쉼표 구분)</small></label>
+      <input type="text" id="post-tags" class="form-control" placeholder="python, linux, 알고리즘">
+    </div>
+  </div>
+</div>
+
+<!-- 3. 마크다운 에디터 -->
+<div class="write-section">
+  <h5>✏️ 내용 <span class="required-star">*</span></h5>
+  <textarea id="post-content"></textarea>
+</div>
+
+<!-- 4. 발행 버튼 -->
+<div class="mb-5">
+  <button onclick="submitPost()" class="btn-publish">🚀 GitHub에 발행하기</button>
+  <div id="status-message" class="alert"></div>
+</div>
+
+<!-- EasyMDE 마크다운 에디터 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.css">
+<script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
+
+<script>
+const REPO_OWNER = 'jammy0903';
+const REPO_NAME  = 'jammy0903.github.io';
+const BRANCH     = 'main';
+
+/* ── EasyMDE 초기화 ── */
+const easyMDE = new EasyMDE({
+  element: document.getElementById('post-content'),
+  placeholder: '여기에 마크다운으로 내용을 작성하세요...\n\n## 소제목\n\n본문 내용\n\n```python\nprint("Hello!")\n```',
+  spellChecker: false,
+  autosave: {
+    enabled: true,
+    uniqueId: 'jammy-blog-autosave',
+    delay: 3000,
+  },
+  toolbar: [
+    'bold', 'italic', 'strikethrough', 'heading', '|',
+    'quote', 'code', 'unordered-list', 'ordered-list', '|',
+    'link', 'image', 'table', 'horizontal-rule', '|',
+    'preview', 'side-by-side', 'fullscreen', '|',
+    'guide'
+  ],
+});
+
+/* ── 날짜 기본값: 오늘 ── */
+document.getElementById('post-date').value = new Date().toISOString().split('T')[0];
+
+/* ── 토큰 로드 ── */
+window.addEventListener('load', () => {
+  const t = localStorage.getItem('gh_blog_token');
+  if (t) {
+    document.getElementById('github-token').value = t;
+    document.getElementById('token-status').style.display = 'inline';
+  }
+  updateSlugPreview();
+});
+
+function saveToken() {
+  const t = document.getElementById('github-token').value.trim();
+  if (!t) { showStatus('warning', '토큰을 입력해주세요.'); return; }
+  localStorage.setItem('gh_blog_token', t);
+  document.getElementById('token-status').style.display = 'inline';
+  showStatus('success', '✔ 토큰이 저장되었습니다.');
+}
+
+function clearToken() {
+  localStorage.removeItem('gh_blog_token');
+  document.getElementById('github-token').value = '';
+  document.getElementById('token-status').style.display = 'none';
+  showStatus('info', '토큰이 삭제되었습니다.');
+}
+
+/* ── 파일명 슬러그 미리보기 ── */
+function slugify(text) {
+  return text.trim()
+    .replace(/[\s·]+/g, '-')
+    .replace(/[<>:"\/\\|?*\x00-\x1f]/g, '')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .substring(0, 80);
+}
+
+function updateSlugPreview() {
+  const title = document.getElementById('post-title').value;
+  const date  = document.getElementById('post-date').value || new Date().toISOString().split('T')[0];
+  if (!title.trim()) { document.getElementById('slug-preview').textContent = ''; return; }
+  const slug = slugify(title);
+  document.getElementById('slug-preview').textContent = '파일명: _posts/' + date + '-' + slug + '.md';
+}
+
+/* ── Front Matter 생성 ── */
+function buildFrontMatter() {
+  const title      = document.getElementById('post-title').value.trim();
+  const subtitle   = document.getElementById('post-subtitle').value.trim();
+  const date       = document.getElementById('post-date').value;
+  const categories = document.getElementById('post-categories').value.trim() || 'blog';
+  const tagsRaw    = document.getElementById('post-tags').value.trim();
+  const tags       = tagsRaw ? tagsRaw.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
+  const dateTime   = date + ' 12:00:00 +0900';
+
+  var fm = '---\n';
+  fm += 'layout: post\n';
+  fm += 'title: "' + title.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"\n';
+  if (subtitle) fm += 'subtitle: "' + subtitle.replace(/\\/g, '\\\\').replace(/"/g, '\\"') + '"\n';
+  fm += 'date: ' + dateTime + '\n';
+  fm += 'categories: ' + categories + '\n';
+  if (tags.length > 0) fm += 'tags: [' + tags.map(function(t){ return "'" + t + "'"; }).join(', ') + ']\n';
+  fm += '---\n\n';
+  return fm;
+}
+
+/* ── 발행 ── */
+async function submitPost() {
+  const token = localStorage.getItem('gh_blog_token');
+  if (!token) { showStatus('danger', '먼저 GitHub 토큰을 저장해주세요.'); return; }
+
+  const title = document.getElementById('post-title').value.trim();
+  if (!title) { showStatus('danger', '제목을 입력해주세요.'); return; }
+
+  const content = easyMDE.value().trim();
+  if (!content) { showStatus('danger', '내용을 입력해주세요.'); return; }
+
+  const date     = document.getElementById('post-date').value;
+  const slug     = slugify(title);
+  const filename = '_posts/' + date + '-' + slug + '.md';
+  const fullText = buildFrontMatter() + content;
+
+  /* UTF-8 → Base64 (한글 포함 안전 처리) */
+  const encoded = btoa(unescape(encodeURIComponent(fullText)));
+
+  showStatus('info', '⏳ 발행 중... (GitHub API 호출 중)');
+
+  try {
+    const res = await fetch(
+      'https://api.github.com/repos/' + REPO_OWNER + '/' + REPO_NAME + '/contents/' + encodeURIComponent(filename),
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'token ' + token,
+          'Content-Type': 'application/json',
+          'Accept': 'application/vnd.github+json',
+        },
+        body: JSON.stringify({
+          message: 'Add post: ' + title,
+          content: encoded,
+          branch:  BRANCH,
+        }),
+      }
+    );
+
+    const data = await res.json();
+
+    if (res.ok) {
+      showStatus('success',
+        '✅ 발행 완료! <a href="' + data.content.html_url + '" target="_blank">GitHub에서 파일 보기 →</a><br>' +
+        '<small>GitHub Actions 빌드 완료 후 약 1~2분 뒤 블로그에 반영됩니다.</small>'
+      );
+    } else if (res.status === 422) {
+      showStatus('danger',
+        '❌ 같은 파일명이 이미 존재합니다. 제목을 조금 바꾸거나 날짜를 확인해주세요.<br><code>' + filename + '</code>'
+      );
+    } else if (res.status === 401) {
+      showStatus('danger', '❌ 인증 실패 — 토큰이 올바른지, 만료되지 않았는지 확인해주세요.');
+    } else {
+      showStatus('danger', '❌ 오류 (' + res.status + '): ' + data.message);
+    }
+  } catch (e) {
+    showStatus('danger', '❌ 네트워크 오류: ' + e.message);
+  }
+}
+
+function showStatus(type, message) {
+  var el = document.getElementById('status-message');
+  el.className = 'alert alert-' + type;
+  el.innerHTML = message;
+  el.style.display = 'block';
+  el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>

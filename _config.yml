@@ -18,6 +18,7 @@ baseurl: ""
 navbar-links:
   Home: "https://jammy0903.github.io/"
   Posts: "posts"
+  글쓰기: "write"
   About: "aboutme"
 
 ################
