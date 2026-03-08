@@ -122,5 +122,3 @@ const editor = new EasyMDE({ element: document.getElementById('editor') });
 정적 사이트라서 불가능할 것 같았는데, GitHub API 덕분에 생각보다 훨씬 깔끔하게 됐다.
 
 ---
-
-*이 글은 Claude가 직접 작성하고 GitHub API로 발행했습니다.*
