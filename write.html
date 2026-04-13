@@ -172,7 +172,9 @@ const REPO_OWNER  = 'jammy0903';
 const REPO_NAME   = 'jammy0903.github.io';
 const BRANCH      = 'main';
 const GH_TOKEN    = 'REDACTED_GITHUB_TOKEN';
-const STORAGE_KEY = 'blog_pw_v2';
+const STORAGE_KEY   = 'blog_pw_v2';
+const SESSION_KEY   = 'blog_session_v2';
+const SESSION_TTL   = 60 * 60 * 1000; // 1시간
 
 let easyMDE = null;
 
@@ -184,6 +186,11 @@ async function sha256(text) {
 
 /* ── 화면 초기화 ── */
 document.addEventListener('DOMContentLoaded', () => {
+  const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
+  if (session && Date.now() - session.ts < SESSION_TTL) {
+    showWriteScreen();
+    return;
+  }
   const saved = localStorage.getItem(STORAGE_KEY);
   if (!saved) {
     document.getElementById('first-setup-hint').style.display = 'block';
@@ -203,9 +210,11 @@ async function doLogin() {
   if (!saved) {
     /* 첫 방문: 입력한 비밀번호를 그대로 설정 */
     localStorage.setItem(STORAGE_KEY, hash);
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
     errEl.textContent = '';
     showWriteScreen();
   } else if (hash === saved) {
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() }));
     errEl.textContent = '';
     showWriteScreen();
   } else {
@@ -246,6 +255,7 @@ function showWriteScreen() {
 
 /* ── 로그아웃 ── */
 function doLogout() {
+  localStorage.removeItem(SESSION_KEY);
   document.getElementById('write-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'block';
   document.getElementById('login-password').value = '';
