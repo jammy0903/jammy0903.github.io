@@ -229,9 +229,9 @@ code {
   font-size: 0.88em;
 }
 
-/* Block code */
-pre {
-  background: #2D2238 !important;
+/* Block code — post-content 안에서만 적용 (CodeMirror 에디터 영향 방지) */
+.post-content pre {
+  background: #2D2238;
   color: #E8DFE6;
   border-radius: 10px;
   padding: 20px;
@@ -239,7 +239,7 @@ pre {
   overflow-x: auto;
 }
 
-pre code {
+.post-content pre code {
   background: transparent;
   color: inherit;
   padding: 0;
