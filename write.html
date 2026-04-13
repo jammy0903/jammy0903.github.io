@@ -66,21 +66,10 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
   min-height: 420px;
   font-size: 15px;
   border-radius: 0 0 6px 6px;
-  background: #ffffff !important;
-  color: #333333 !important;
 }
-.EasyMDEContainer .CodeMirror .CodeMirror-cursor { border-left-color: #333333 !important; }
-.EasyMDEContainer .CodeMirror .CodeMirror-selected { background: #c4727f33 !important; }
-.EasyMDEContainer .CodeMirror-scroll { background: #ffffff !important; }
-.EasyMDEContainer .CodeMirror pre.CodeMirror-line,
-.EasyMDEContainer .CodeMirror pre.CodeMirror-line-like { color: #333333 !important; }
 .EasyMDEContainer .editor-toolbar {
   border-radius: 6px 6px 0 0;
-  background: #faf5f7 !important;
 }
-.EasyMDEContainer .editor-toolbar button { color: #4a4453 !important; }
-.EasyMDEContainer .editor-preview { background: #ffffff !important; color: #333333 !important; }
-.EasyMDEContainer .editor-preview-side { background: #ffffff !important; color: #333333 !important; }
 .form-label { font-weight: 600; color: #4a4453; margin-bottom: 5px; display: block; }
 .form-control:focus { border-color: #c4727f; box-shadow: 0 0 0 0.2rem rgba(196,114,127,0.18); outline: none; }
 #status-message { margin-top: 18px; border-radius: 8px; padding: 14px 18px; display: none; }
@@ -250,6 +239,30 @@ function showWriteScreen() {
         'preview','side-by-side','fullscreen','|','guide'
       ],
     });
+
+    /* 테마 CSS 강제 덮어쓰기 — 인라인 스타일로 직접 박음 */
+    const forceEditorStyles = () => {
+      const cm = document.querySelector('.EasyMDEContainer .CodeMirror');
+      const scroll = document.querySelector('.EasyMDEContainer .CodeMirror-scroll');
+      const toolbar = document.querySelector('.EasyMDEContainer .editor-toolbar');
+      if (cm) {
+        cm.style.setProperty('background', '#ffffff', 'important');
+        cm.style.setProperty('color', '#222222', 'important');
+      }
+      if (scroll) scroll.style.setProperty('background', '#ffffff', 'important');
+      if (toolbar) {
+        toolbar.style.setProperty('background', '#faf5f7', 'important');
+        toolbar.querySelectorAll('button, i').forEach(el => {
+          el.style.setProperty('color', '#4a4453', 'important');
+        });
+      }
+      document.querySelectorAll('.EasyMDEContainer .CodeMirror-line').forEach(el => {
+        el.style.setProperty('color', '#222222', 'important');
+      });
+    };
+
+    forceEditorStyles();
+    easyMDE.codemirror.on('change', () => requestAnimationFrame(forceEditorStyles));
   }
 }
 
