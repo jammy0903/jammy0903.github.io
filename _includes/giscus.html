@@ -1,0 +1,42 @@
+{% if page.comments %}
+<!-- Giscus: Comments & Reactions -->
+<style>
+  #giscus-section {
+    max-width: 800px;
+    margin: 3rem auto 2rem;
+    padding: 0 1.5rem;
+  }
+
+  #giscus-section h3 {
+    font-family: 'Playfair Display', 'Nanum Myeongjo', Georgia, serif;
+    font-size: 1.2rem;
+    color: #6B5E6E;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #F0E6EB;
+  }
+
+  .giscus-frame {
+    border-radius: 8px;
+  }
+</style>
+
+<div id="giscus-section">
+  <h3>댓글</h3>
+  <script src="https://giscus.app/client.js"
+    data-repo="jammy0903/jammy0903.github.io"
+    data-repo-id="R_kgDORaNJYQ"
+    data-category="General"
+    data-category-id="DIC_kwDORaNJYc4C6tkZ"
+    data-mapping="pathname"
+    data-strict="0"
+    data-reactions-enabled="1"
+    data-emit-metadata="0"
+    data-input-position="bottom"
+    data-theme="light"
+    data-lang="ko"
+    crossorigin="anonymous"
+    async>
+  </script>
+</div>
+{% endif %}
