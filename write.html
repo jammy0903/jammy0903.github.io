@@ -239,30 +239,6 @@ function showWriteScreen() {
         'preview','side-by-side','fullscreen','|','guide'
       ],
     });
-
-    /* 테마 CSS 강제 덮어쓰기 — 인라인 스타일로 직접 박음 */
-    const forceEditorStyles = () => {
-      const cm = document.querySelector('.EasyMDEContainer .CodeMirror');
-      const scroll = document.querySelector('.EasyMDEContainer .CodeMirror-scroll');
-      const toolbar = document.querySelector('.EasyMDEContainer .editor-toolbar');
-      if (cm) {
-        cm.style.setProperty('background', '#ffffff', 'important');
-        cm.style.setProperty('color', '#222222', 'important');
-      }
-      if (scroll) scroll.style.setProperty('background', '#ffffff', 'important');
-      if (toolbar) {
-        toolbar.style.setProperty('background', '#faf5f7', 'important');
-        toolbar.querySelectorAll('button, i').forEach(el => {
-          el.style.setProperty('color', '#4a4453', 'important');
-        });
-      }
-      document.querySelectorAll('.EasyMDEContainer .CodeMirror-line').forEach(el => {
-        el.style.setProperty('color', '#222222', 'important');
-      });
-    };
-
-    forceEditorStyles();
-    easyMDE.codemirror.on('change', () => requestAnimationFrame(forceEditorStyles));
   }
 }
 
