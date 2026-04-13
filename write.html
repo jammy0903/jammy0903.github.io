@@ -7,8 +7,8 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
 <style>
 /* ── 로그인 화면 ── */
 #login-screen {
-  max-width: 400px;
-  margin: 60px auto;
+  max-width: 360px;
+  margin: 80px auto;
   background: #fff;
   border-radius: 12px;
   padding: 36px 32px;
@@ -41,32 +41,7 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
 }
 .btn-login:hover { background: #a85b6a; }
 #login-error { color: #c4727f; font-size: 13px; margin-top: 10px; min-height: 18px; }
-
-/* ── 초기 설정 화면 ── */
-#setup-screen {
-  max-width: 480px;
-  margin: 40px auto;
-  background: #fff;
-  border-radius: 12px;
-  padding: 36px 32px;
-  border: 1px solid #f0e6eb;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-}
-#setup-screen h4 { color: #4a4453; font-weight: 700; margin-bottom: 6px; }
-#setup-screen p { color: #9b8e9e; font-size: 14px; margin-bottom: 24px; }
-#setup-screen label { font-size: 13px; font-weight: 600; color: #4a4453; display: block; margin-bottom: 5px; }
-#setup-screen input {
-  width: 100%;
-  padding: 10px 14px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 14px;
-  margin-bottom: 14px;
-  box-sizing: border-box;
-}
-#setup-screen input:focus { border-color: #c4727f; outline: none; }
-#setup-screen small { color: #9b8e9e; font-size: 12px; display: block; margin-top: -10px; margin-bottom: 14px; }
-#setup-error { color: #c4727f; font-size: 13px; margin-top: 8px; }
+#first-setup-hint { margin-top: 14px; font-size: 12px; color: #9b8e9e; }
 
 /* ── 에디터 화면 ── */
 #write-screen { display: none; }
@@ -112,45 +87,21 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
 .btn-logout:hover { border-color: #c4727f; color: #c4727f; }
 </style>
 
-<!-- ① 초기 설정 화면 (처음 1회) — 기본 표시, JS로 로그인 화면으로 전환 -->
-<div id="setup-screen">
-  <h4>🔧 초기 설정</h4>
-  <p>처음 한 번만 설정하면 이후에는 비밀번호만으로 로그인됩니다.</p>
-
-  <label>GitHub Personal Access Token</label>
-  <input type="password" id="setup-token" placeholder="ghp_...">
-  <small>repo 권한 필요 — <a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">발급하러 가기</a></small>
-
-  <label>사용할 아이디</label>
-  <input type="text" id="setup-username" placeholder="jammy" autocomplete="off">
-
-  <label>사용할 비밀번호</label>
-  <input type="password" id="setup-password" placeholder="비밀번호 설정">
-
-  <label>비밀번호 확인</label>
-  <input type="password" id="setup-password2" placeholder="비밀번호 재입력">
-
-  <button class="btn-login" onclick="doSetup()">설정 완료</button>
-  <div id="setup-error"></div>
-</div>
-
-<!-- ② 로그인 화면 -->
-<div id="login-screen" style="display:none;">
+<!-- 로그인 화면 -->
+<div id="login-screen">
   <h4>🔐 로그인</h4>
-  <input type="text"     id="login-username" placeholder="아이디" autocomplete="off">
   <input type="password" id="login-password" placeholder="비밀번호">
   <button class="btn-login" onclick="doLogin()">로그인</button>
   <div id="login-error"></div>
-  <div style="margin-top:16px; border-top:1px solid #f0e6eb; padding-top:14px;">
-    <small style="color:#9b8e9e;">토큰/비밀번호를 바꾸고 싶다면 → </small>
-    <small><a href="#" onclick="showSetup(); return false;">초기 설정 다시 하기</a></small>
+  <div id="first-setup-hint" style="display:none;">
+    처음 사용 시 비밀번호를 입력하면 그대로 설정됩니다.
   </div>
 </div>
 
-<!-- ③ 에디터 화면 -->
+<!-- 에디터 화면 -->
 <div id="write-screen">
   <div class="top-bar">
-    <span>✍️ <strong id="logged-user"></strong>님 환영합니다</span>
+    <span>✍️ jammy0903님 환영합니다</span>
     <button class="btn-logout" onclick="doLogout()">로그아웃</button>
   </div>
 
@@ -200,120 +151,66 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
 <script src="https://cdn.jsdelivr.net/npm/easymde@2.18.0/dist/easymde.min.js"></script>
 
 <script>
-const REPO_OWNER = 'jammy0903';
-const REPO_NAME  = 'jammy0903.github.io';
-const BRANCH     = 'main';
-const STORAGE_KEY = 'blog_auth_v1';
+const REPO_OWNER  = 'jammy0903';
+const REPO_NAME   = 'jammy0903.github.io';
+const BRANCH      = 'main';
+const GH_TOKEN    = 'REDACTED_GITHUB_TOKEN';
+const STORAGE_KEY = 'blog_pw_v2';
 
 let easyMDE = null;
 
-/* ── SHA-256 해싱 (Web Crypto API) ── */
+/* ── SHA-256 ── */
 async function sha256(text) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
 }
 
-/* ── 간단한 XOR 난독화 (토큰을 그대로 저장하지 않기 위해) ── */
-function xorEncode(str, key) {
-  return btoa(str.split('').map((c, i) =>
-    String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))
-  ).join(''));
-}
-function xorDecode(encoded, key) {
-  const str = atob(encoded);
-  return str.split('').map((c, i) =>
-    String.fromCharCode(c.charCodeAt(0) ^ key.charCodeAt(i % key.length))
-  ).join('');
-}
-
-/* ── 저장된 인증 정보 불러오기 ── */
-function loadAuth() {
-  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)); } catch { return null; }
-}
-function saveAuth(data) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-}
-
-/* ── 화면 초기화: setup-screen이 기본 표시 → 이미 설정됐으면 login으로 전환 ── */
+/* ── 화면 초기화 ── */
 document.addEventListener('DOMContentLoaded', () => {
-  const auth = loadAuth();
-  if (auth) {
-    document.getElementById('setup-screen').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'block';
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (!saved) {
+    document.getElementById('first-setup-hint').style.display = 'block';
   }
-  // auth 없으면 setup-screen이 이미 보임 (display:block 기본값)
 });
-
-function showSetup() {
-  document.getElementById('setup-screen').style.display  = 'block';
-  document.getElementById('login-screen').style.display  = 'none';
-  document.getElementById('write-screen').style.display  = 'none';
-}
-
-/* ── 초기 설정 ── */
-async function doSetup() {
-  const token = document.getElementById('setup-token').value.trim();
-  const username = document.getElementById('setup-username').value.trim();
-  const pw  = document.getElementById('setup-password').value;
-  const pw2 = document.getElementById('setup-password2').value;
-  const errEl = document.getElementById('setup-error');
-
-  if (!token)    { errEl.textContent = '토큰을 입력해주세요.'; return; }
-  if (!username) { errEl.textContent = '아이디를 입력해주세요.'; return; }
-  if (!pw)       { errEl.textContent = '비밀번호를 입력해주세요.'; return; }
-  if (pw !== pw2){ errEl.textContent = '비밀번호가 일치하지 않습니다.'; return; }
-
-  errEl.textContent = '설정 중...';
-
-  const pwHash = await sha256(pw + username);
-  const encodedToken = xorEncode(token, pwHash.substring(0, 16));
-
-  saveAuth({ username, pwHash, encodedToken });
-  errEl.textContent = '';
-  showWriteScreen(username, token);
-}
 
 /* ── 로그인 ── */
 async function doLogin() {
-  const username = document.getElementById('login-username').value.trim();
   const pw = document.getElementById('login-password').value;
   const errEl = document.getElementById('login-error');
 
-  const auth = loadAuth();
-  if (!auth) { showSetup(); return; }
+  if (!pw) { errEl.textContent = '비밀번호를 입력해주세요.'; return; }
 
-  const pwHash = await sha256(pw + username);
-  if (username !== auth.username || pwHash !== auth.pwHash) {
-    errEl.textContent = '아이디 또는 비밀번호가 틀렸습니다.';
-    return;
+  const hash = await sha256(pw);
+  const saved = localStorage.getItem(STORAGE_KEY);
+
+  if (!saved) {
+    /* 첫 방문: 입력한 비밀번호를 그대로 설정 */
+    localStorage.setItem(STORAGE_KEY, hash);
+    errEl.textContent = '';
+    showWriteScreen();
+  } else if (hash === saved) {
+    errEl.textContent = '';
+    showWriteScreen();
+  } else {
+    errEl.textContent = '비밀번호가 틀렸습니다.';
   }
-
-  errEl.textContent = '';
-  const token = xorDecode(auth.encodedToken, pwHash.substring(0, 16));
-  showWriteScreen(username, token);
 }
 
-/* ── Enter 키 로그인 ── */
+/* ── Enter 키 ── */
 document.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
-    if (document.getElementById('login-screen').style.display !== 'none') doLogin();
-    if (document.getElementById('setup-screen').style.display !== 'none') doSetup();
+  if (e.key === 'Enter' && document.getElementById('login-screen').style.display !== 'none') {
+    doLogin();
   }
 });
 
-/* ── 에디터 화면 표시 ── */
-function showWriteScreen(username, token) {
-  window._ghToken = token;
-  document.getElementById('setup-screen').style.display = 'none';
+/* ── 에디터 화면 ── */
+function showWriteScreen() {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('write-screen').style.display = 'block';
-  document.getElementById('logged-user').textContent = username;
 
-  /* 날짜 기본값 */
   document.getElementById('post-date').value = new Date().toISOString().split('T')[0];
   updateSlugPreview();
 
-  /* EasyMDE 초기화 (최초 1회) */
   if (!easyMDE) {
     easyMDE = new EasyMDE({
       element: document.getElementById('post-content'),
@@ -332,13 +229,12 @@ function showWriteScreen(username, token) {
 
 /* ── 로그아웃 ── */
 function doLogout() {
-  window._ghToken = null;
   document.getElementById('write-screen').style.display = 'none';
   document.getElementById('login-screen').style.display = 'block';
   document.getElementById('login-password').value = '';
 }
 
-/* ── 파일명 슬러그 ── */
+/* ── 슬러그 ── */
 function slugify(text) {
   return text.trim()
     .replace(/[\s·]+/g, '-')
@@ -349,10 +245,10 @@ function slugify(text) {
 }
 
 function updateSlugPreview() {
-  const title = document.getElementById('post-title') ? document.getElementById('post-title').value : '';
-  const date  = document.getElementById('post-date')  ? document.getElementById('post-date').value  : '';
+  const title = document.getElementById('post-title')?.value ?? '';
+  const date  = document.getElementById('post-date')?.value  ?? '';
   const el    = document.getElementById('slug-preview');
-  if (!el || !title.trim()) { if(el) el.textContent = ''; return; }
+  if (!el || !title.trim()) { if (el) el.textContent = ''; return; }
   el.textContent = '파일명: _posts/' + date + '-' + slugify(title) + '.md';
 }
 
@@ -363,24 +259,21 @@ function buildFrontMatter() {
   const date       = document.getElementById('post-date').value;
   const categories = document.getElementById('post-categories').value.trim() || 'blog';
   const tagsRaw    = document.getElementById('post-tags').value.trim();
-  const tags       = tagsRaw ? tagsRaw.split(',').map(function(t){ return t.trim(); }).filter(Boolean) : [];
+  const tags       = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
 
-  var fm = '---\n';
+  let fm = '---\n';
   fm += 'layout: post\n';
   fm += 'title: "' + title.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"\n';
   if (subtitle) fm += 'subtitle: "' + subtitle.replace(/\\/g,'\\\\').replace(/"/g,'\\"') + '"\n';
   fm += 'date: ' + date + ' 12:00:00 +0900\n';
   fm += 'categories: ' + categories + '\n';
-  if (tags.length > 0) fm += 'tags: [' + tags.map(function(t){ return "'" + t + "'"; }).join(', ') + ']\n';
+  if (tags.length > 0) fm += 'tags: [' + tags.map(t => "'" + t + "'").join(', ') + ']\n';
   fm += '---\n\n';
   return fm;
 }
 
 /* ── 발행 ── */
 async function submitPost() {
-  const token = window._ghToken;
-  if (!token) { showStatus('danger', '로그인이 필요합니다.'); return; }
-
   const title = document.getElementById('post-title').value.trim();
   if (!title) { showStatus('danger', '제목을 입력해주세요.'); return; }
 
@@ -400,7 +293,7 @@ async function submitPost() {
       {
         method: 'PUT',
         headers: {
-          'Authorization': 'token ' + token,
+          'Authorization': 'token ' + GH_TOKEN,
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.github+json',
         },
@@ -416,7 +309,7 @@ async function submitPost() {
     } else if (res.status === 422) {
       showStatus('danger', '❌ 같은 파일명이 이미 존재합니다. 제목을 조금 바꿔보세요.<br><code>' + filename + '</code>');
     } else if (res.status === 401) {
-      showStatus('danger', '❌ 인증 실패 — 토큰이 만료됐을 수 있습니다. 로그아웃 후 초기 설정을 다시 해주세요.');
+      showStatus('danger', '❌ 인증 실패 — 토큰이 만료됐습니다. 새 토큰으로 교체가 필요합니다.');
     } else {
       showStatus('danger', '❌ 오류 (' + res.status + '): ' + data.message);
     }
@@ -426,7 +319,7 @@ async function submitPost() {
 }
 
 function showStatus(type, message) {
-  var el = document.getElementById('status-message');
+  const el = document.getElementById('status-message');
   el.className = 'alert alert-' + type;
   el.innerHTML = message;
   el.style.display = 'block';
