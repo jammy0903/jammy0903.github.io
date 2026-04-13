@@ -74,13 +74,6 @@ footer-link-col: "#6B5E6E"
 footer-hover-col: "#A85B6A"
 
 ################
-# --- Waline (댓글/반응) --- #
-################
-
-# Vercel 배포 후 실제 URL로 교체
-waline_server_url: "https://your-waline-url.vercel.app"
-
-################
 # --- Misc --- #
 ################
 
@@ -113,7 +106,7 @@ defaults:
       comments: true
       social-share: true
       footer-extra:
-        - waline.html
+        - giscus.html
   -
     scope:
       path: ""
