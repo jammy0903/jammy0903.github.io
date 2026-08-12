@@ -39,6 +39,13 @@ class Game:
     def key(self, keysym):
         return False
 
+    def click(self, x, y, button=1, drag=False):
+        """캔버스 좌표로 들어오는 마우스 입력. 처리했으면 True.
+
+        drag=True 면 누른 채 끌고 있는 중이다.
+        """
+        return False
+
     def tick(self, dt):
         return False
 
