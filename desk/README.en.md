@@ -40,9 +40,9 @@ To actually quit, use `Ctrl+Q` or the window's X button — either way your prog
 
 | # | Game | Controls |
 | --- | --- | --- |
-| 1 | Tetris | `←` `→` move · `↑` rotate · `↓` soft drop · `Space` hard drop |
+| 1 | Tetris | `←` `→` move · `↑` rotate · **`Z` counter-clockwise** · `↓` soft drop · `Space` hard drop |
 | 2 | Suika (watermelon) | `←` `→` aim · `Space` drop |
-| 3 | Puyo Puyo | `←` `→` move · `↑` rotate · `↓` lower · `Space` drop |
+| 3 | Puyo Puyo | `←` `→` move · `↑` rotate · **`Z` counter-clockwise** · `↓` lower · `Space` drop |
 | 4 | 2048 | arrows |
 | 5 | Threes! | arrows |
 | 6 | Triple Town | arrows move · `Space` place · `S` swap storage |
@@ -96,7 +96,7 @@ Delete the file to reset everything.
 
 ## Notes on the rules
 
-- **Tetris** — standard. 7-bag randomiser, landing preview, 100/300/500/800 per
+- **Tetris** — standard. 7-bag randomiser, landing preview, wall kicks up to 2 cells, 100/300/500/800 per
   1/2/3/4 lines multiplied by level, faster every 10 lines.
 - **Suika** — same fruit twice makes the next one, 11 tiers. The physics is Verlet
   integration with positional (PBD) constraints, so fruit settles instead of bouncing.

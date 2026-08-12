@@ -27,11 +27,11 @@ EN = {
     "투명도": "Opacity",
 
     # 도움말 한 줄
-    "← → 이동 · ↑ 회전 · ↓ 소프트드롭 · Space 하드드롭":
-        "Left/Right move · Up rotate · Down soft drop · Space hard drop",
+    "← → 이동 · ↑ 회전 · Z 반시계 · ↓ 내리기 · Space 하드드롭":
+        "Left/Right move · Up rotate · Z counter-clockwise · Down · Space drop",
     "← → 위치 · Space 떨어뜨리기": "Left/Right aim · Space drop",
-    "← → 이동 · ↑ 회전 · ↓ 내리기 · Space 떨구기":
-        "Left/Right move · Up rotate · Down lower · Space drop",
+    "← → 이동 · ↑ 회전 · Z 반시계 · ↓ 내리기 · Space 떨구기":
+        "Left/Right move · Up rotate · Z counter-clockwise · Down · Space drop",
     "방향키로 밀기 · 같은 수끼리 합쳐진다":
         "Arrows to slide · equal numbers merge",
     "방향키로 한 칸씩 · 1+2=3 · 3부터는 같은 수끼리":
