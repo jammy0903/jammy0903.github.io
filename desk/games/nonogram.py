@@ -9,11 +9,12 @@
 """
 import random
 
-from .base import DIM, Game, LINE, PANEL, center_text
+from .base import DIM, INK, Game, LINE, PANEL, center_text, rrect
 from .i18n import t
 
 LEVELS = 500            # 크기마다 500판
 FILL = "#2f3a49"
+PAINT, XMARK = 1, 2     # 지금 칠하고 있는 것
 MARK = "#c4727f"        # X 표시. 반투명하게 깔아 놔도 보이도록 진한 색
 
 SIZES = (10, 15, 20)    # S 키로 고른다. 크기마다 진행도가 따로 쌓인다
@@ -136,7 +137,7 @@ def make(n, level):
 
 class Nonogram(Game):
     name = "NONOGRAM"
-    help = "방향키 · Space 칠하기 · X 표시 · S 판 크기 · , . 판 넘기기"
+    help = "클릭·드래그로 칠하기 · Tab 칠하기/X 전환 · S 판 크기 · , . 판 넘기기"
     LEVELS = LEVELS
 
     def reset(self):
@@ -145,7 +146,10 @@ class Nonogram(Game):
         self.progress = getattr(self, "progress", {n: 0 for n in SIZES})
         self.n = getattr(self, "n", SIZES[0])
         self.score = getattr(self, "score", 0)
+        self.mode = getattr(self, "mode", PAINT)   # 마우스로 뭘 칠할지
         self.over = False
+        self._geom = None                          # 마지막으로 그린 판 위치
+        self._paint = None                         # 드래그 중 칠할 값
         self.load_level()
 
     @property
@@ -182,18 +186,65 @@ class Nonogram(Game):
             self.cr = (self.cr + 1) % n
         elif k in ("s", "S"):
             self.set_size(SIZES[(SIZES.index(self.n) + 1) % len(SIZES)])
+        elif k == "Tab":
+            self.mode = XMARK if self.mode == PAINT else PAINT
         elif k in ("Return", "KP_Enter"):
             if self.done:
                 self.next_level()
         elif self.done:
             return False
         elif k == "space":
-            self.grid[self.cr][self.cc] = 0 if self.grid[self.cr][self.cc] == 1 else 1
-            self.check()
+            # 키보드로 눌러도 지금 고른 모드로 칠한다 — 마우스와 같게
+            self.paint(self.cr, self.cc, self.mode)
         elif k in ("x", "X", "f", "F"):
-            self.grid[self.cr][self.cc] = 0 if self.grid[self.cr][self.cc] == 2 else 2
+            self.mode = XMARK
+            self.paint(self.cr, self.cc, XMARK)
+        elif k in ("b", "B"):
+            self.mode = PAINT
+            self.paint(self.cr, self.cc, PAINT)
         else:
             return False
+        return True
+
+    def paint(self, r, c, value):
+        """같은 값을 다시 칠하면 지워진다."""
+        self.grid[r][c] = 0 if self.grid[r][c] == value else value
+        self.check()
+        return self.grid[r][c]
+
+    # --- 마우스 ---
+    def click(self, x, y, button=1, drag=False):
+        """칸을 누르면 지금 고른 것으로 칠한다. 끌면 이어서 칠해진다.
+
+        오른쪽 버튼은 반대쪽(칠하기 ↔ X)으로 칠한다. 네모로직에서는
+        '칸을 확정해서 지우는' 동작이 잦아서 이게 훨씬 빠르다.
+        """
+        if self.done or not self._geom:
+            return False
+        ox, oy, cell, mode_box = self._geom
+
+        if not drag and mode_box[0] <= x <= mode_box[2] \
+                and mode_box[1] <= y <= mode_box[3]:
+            self.mode = XMARK if self.mode == PAINT else PAINT
+            return True
+
+        c = int((x - ox) // cell)
+        r = int((y - oy) // cell)
+        if not (0 <= r < self.n and 0 <= c < self.n):
+            return False
+        self.cr, self.cc = r, c
+        want = self.mode if button != 3 else \
+            (XMARK if self.mode == PAINT else PAINT)
+        if drag:
+            # 처음 누른 칸에서 정해진 값을 그대로 이어 칠한다.
+            # 칸마다 토글하면 지나가는 칸이 켜졌다 꺼졌다 해서 못 쓴다.
+            if self._paint is None:
+                return False
+            if self.grid[r][c] != self._paint:
+                self.grid[r][c] = self._paint
+                self.check()
+            return True
+        self._paint = self.paint(r, c, want)
         return True
 
     def check(self):
@@ -228,7 +279,7 @@ class Nonogram(Game):
     def draw(self, c, x, y, w, h):
         n = self.n
         pad, fs = LAYOUT[n]
-        cell = int(min((w - pad - 16) / n, (h - pad - 44) / n))
+        cell = int(min((w - pad - 16) / n, (h - pad - 70) / n))
         bw = cell * n
         ox = x + pad + (w - pad - bw) / 2
         oy = y + pad
@@ -273,7 +324,26 @@ class Nonogram(Game):
         c.create_rectangle(bx - 1, by - 1, bx + cell + 1, by + cell + 1,
                            outline="#2f6ea8", width=2)
 
-        center_text(c, x + w / 2, oy + bw + 24,
+        # 지금 뭘 칠하고 있는지 — 눌러서 바꿀 수도 있다
+        mw, mh = 92, 22
+        mx = x + w / 2 - mw / 2
+        my = oy + bw + 12
+        rrect(c, mx, my, mx + mw, my + mh, 5, fill=PANEL, outline="#2f6ea8")
+        sw = 12
+        if self.mode == PAINT:
+            c.create_rectangle(mx + 10, my + 5, mx + 10 + sw, my + 5 + sw,
+                               fill=FILL, outline="")
+        else:
+            c.create_line(mx + 10, my + 5, mx + 10 + sw, my + 5 + sw,
+                          fill=MARK, width=2)
+            c.create_line(mx + 10 + sw, my + 5, mx + 10, my + 5 + sw,
+                          fill=MARK, width=2)
+        c.create_text(mx + 30, my + mh / 2, anchor="w", fill=INK,
+                      font=("Helvetica", 8, "bold"),
+                      text=t("칠하기") if self.mode == PAINT else t("X 표시"))
+        self._geom = (ox, oy, cell, (mx, my, mx + mw, my + mh))
+
+        center_text(c, x + w / 2, oy + bw + 46,
                     t("%d / %d 판   %dx%d  (S 크기)")
                     % (self.level + 1, LEVELS, n, n), 9, DIM)
         if self.done:

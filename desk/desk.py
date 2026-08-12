@@ -75,6 +75,8 @@ class Shell:
         self.canvas.bind("<Button-1>", self.on_click)
         self.canvas.bind("<B1-Motion>", self.on_drag)
         self.canvas.bind("<ButtonRelease-1>", self.on_release)
+        self.canvas.bind("<Button-3>", lambda e: self.on_click(e, button=3))
+        self.canvas.bind("<B3-Motion>", lambda e: self.on_drag(e, button=3))
         self.root.bind("<Key>", self.on_key)
         self.root.bind("<Control-q>", lambda e: self.quit())
         self.root.bind("<Unmap>", self.on_unmap)
@@ -237,16 +239,21 @@ class Shell:
         self.apply_alpha()
 
     # --- 입력 ---
-    def on_drag(self, e):
-        if self.slider_hit(e):
+    def on_drag(self, e, button=1):
+        if self.menu:
+            if self.slider_hit(e):
+                self.draw()
+        elif self.game.click(e.x, e.y, button, drag=True):
             self.draw()
 
     def on_release(self, _e):
         self.save()
 
-    def on_click(self, e):
-        """메뉴에서는 클릭으로 고르고, 투명도 바도 잡는다."""
+    def on_click(self, e, button=1):
+        """메뉴에서는 클릭으로 고르고, 게임 중에는 게임에 넘긴다."""
         if not self.menu:
+            if self.game.click(e.x, e.y, button):
+                self.draw()
             return
         if self.slider_hit(e):
             self.draw()
@@ -274,7 +281,8 @@ class Shell:
         elif k in ("l", "L"):
             self.lang = i18n.toggle()
             self.save()
-        elif k in ("m", "M", "Tab"):
+        elif k in ("m", "M"):
+            # Tab 은 게임 쪽에 넘긴다 (네모로직에서 칠하기/X 전환)
             self.menu = not self.menu
             self.pick = self.idx
         elif self.menu:

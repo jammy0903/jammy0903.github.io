@@ -39,8 +39,10 @@ EN = {
         "Arrows move one step · 1+2=3 · from 3 on, equal numbers",
     "방향키 커서 · Space 놓기 · S 보관칸 교체":
         "Arrows move · Space place · S swap storage",
-    "방향키 · Space 칠하기 · X 표시 · S 판 크기 · , . 판 넘기기":
-        "Arrows · Space fill · X mark · S board size · , . change puzzle",
+    "클릭·드래그로 칠하기 · Tab 칠하기/X 전환 · S 판 크기 · , . 판 넘기기":
+        "Click or drag to paint · Tab switches fill/X · S size · , . change puzzle",
+    "칠하기": "fill",
+    "X 표시": "X mark",
     "← → 색 고르기 · Space 칠하기 · , . 단계 넘기기":
         "Left/Right pick colour · Space flood · , . change stage",
     "방향키로 밀기 · U 무르기 · , . 판 넘기기 · Enter 다음 판":

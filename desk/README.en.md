@@ -46,7 +46,7 @@ To actually quit, use `Ctrl+Q` or the window's X button — either way your prog
 | 4 | 2048 | arrows · **`Backspace` undoes one move** |
 | 5 | Threes! | arrows |
 | 6 | Triple Town | arrows move · `Space` place · `S` swap storage |
-| 7 | Nonogram | arrows · `Space` fill · `X` mark · **`S` board size** · `Enter` next |
+| 7 | Nonogram | **click or drag** · `Tab` fill/X · arrows+`Space` · **`S` board size** · `Enter` next |
 | 8 | Flood It | `←` `→` pick colour · `Space` flood · `Enter` next stage |
 | 9 | Sokoban | arrows push · `U` undo · `Enter` next level |
 
@@ -114,6 +114,10 @@ Delete the file to reset everything.
   mansion → castle → floating castle. Bears wander into empty cells each turn and turn
   into tombstones when boxed in; three tombstones → church → cathedral.
 - **Nonogram** — clues for a fully satisfied line grey out. Score equals board area.
+  **Click a cell to paint it, hold and drag to keep painting.** Whether you are
+  painting filled cells or X marks is switched with the button under the board (or
+  `Tab`), and the **right mouse button paints the other one**. A drag commits to the
+  value decided on the first cell, so passing over cells never flickers them on and off.
 - **Flood It** — your connected region is outlined in white. Fewer moves, more points.
 - **Sokoban** — push boxes onto the yellow circles. You cannot pull (but `U` undoes).
 

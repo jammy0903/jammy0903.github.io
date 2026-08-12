@@ -208,6 +208,40 @@ ng.n = 15
 ok(ng.level == 7, "15x15 로 돌아오면 하던 판 그대로")
 ng.n = 10
 ng.load_level()
+
+# 마우스로 칠하기 · 칠하기/X 전환
+import tkinter as _tk
+if canvas is not None:
+    nm = nonogram.Nonogram()
+    nm.draw(canvas, 0, 26, 400, 476)
+    ox, oy, cell, box = nm._geom
+    cx, cy = ox + cell * 2 + cell / 2, oy + cell * 3 + cell / 2
+    ok(nm.mode == nonogram.PAINT, "기본은 칠하기 모드")
+    nm.click(cx, cy)
+    ok(nm.grid[3][2] == 1, "클릭한 칸이 칠해짐")
+    ok((nm.cr, nm.cc) == (3, 2), "커서도 그 칸으로 옮겨짐")
+    nm.click(cx, cy)
+    ok(nm.grid[3][2] == 0, "같은 칸 다시 클릭하면 지워짐")
+    nm.click(box[0] + 5, box[1] + 5)
+    ok(nm.mode == nonogram.XMARK, "모드 단추를 누르면 X 표시로")
+    nm.click(cx, cy)
+    ok(nm.grid[3][2] == 2, "X 모드에서는 X 가 찍힘")
+    nm.click(cx, cy, button=3)
+    ok(nm.grid[3][2] == 1, "오른쪽 버튼은 반대쪽으로 칠함")
+    nm.key("Tab")
+    ok(nm.mode == nonogram.PAINT, "Tab 으로 모드 전환")
+    # 드래그: 처음 누른 칸에서 정해진 값이 이어져야 한다
+    nm.grid = [[0] * nm.n for _ in range(nm.n)]
+    nm.click(ox + cell / 2, oy + cell / 2)
+    for i in range(1, 4):
+        nm.click(ox + cell * i + cell / 2, oy + cell / 2, drag=True)
+    ok([nm.grid[0][i] for i in range(4)] == [1, 1, 1, 1], "드래그로 이어 칠하기")
+    for i in range(4):
+        nm.click(ox + cell * i + cell / 2, oy + cell / 2, drag=True)
+    ok([nm.grid[0][i] for i in range(4)] == [1, 1, 1, 1],
+       "드래그 중에는 켜졌다 꺼졌다 하지 않음")
+    ok(nm.click(5, 5) is False, "판 밖 클릭은 무시")
+
 for r in range(ng.n):
     for cc in range(ng.n):
         ng.grid[r][cc] = 1 if ng.sol[r][cc] else 0
@@ -337,6 +371,8 @@ if canvas is not None:
     ok(sh.idx == 2 and not sh.menu, "숫자키로 바로 전환")
     sh.on_key(type("E", (), {"keysym": "m"})())
     ok(sh.menu and sh.pick == 2, "M 으로 메뉴, 지금 게임에 커서")
+    sh.on_key(type("E", (), {"keysym": "Tab"})())
+    ok(sh.menu, "Tab 은 이제 메뉴를 안 건드린다 (게임 쪽으로 간다)")
     ok(len(sh.games) == 9, "게임 9개")
     sh.on_key(type("E", (), {"keysym": "9"})())
     ok(sh.idx == 8, "9번까지 숫자키로 이동")
