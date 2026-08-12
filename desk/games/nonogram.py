@@ -166,6 +166,10 @@ class Nonogram(Game):
         self.cr = self.cc = 0
         self.done = False
 
+    @property
+    def banner(self):
+        return (t("완성! Enter 로 다음 판"), "#2f6ea8") if self.done else None
+
     def next_level(self):
         self.level += 1
         self.load_level()
@@ -369,9 +373,7 @@ class Nonogram(Game):
         center_text(c, x + w / 2, oy + bw + 46,
                     t("%d / %d 판   %dx%d  (S 크기)")
                     % (self.level + 1, LEVELS, n, n), 9, DIM)
-        if self.done:
-            center_text(c, x + w / 2, oy + bw / 2, t("완성! Enter 로 다음 판"), 13,
-                        "#2f6ea8")
+
 
     @staticmethod
     def line_done(line, cl):

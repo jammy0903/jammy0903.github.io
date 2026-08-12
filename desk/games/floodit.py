@@ -88,6 +88,8 @@ class FloodIt(Game):
         return blob_of(self.grid, self.n)
 
     def flood(self, color):
+        if self.done:
+            return
         cells = self.blob()
         if color == self.grid[0][0]:
             return                          # 같은 색은 한 수를 버리는 것뿐
@@ -95,15 +97,26 @@ class FloodIt(Game):
             self.grid[r][c] = color
         self.moves += 1
         if len(self.blob()) == self.n * self.n:
-            self.won = True
-            self.over = True
+            self.won = True                 # 성공은 '게임 오버'가 아니다
             # 적게 쓸수록 많이 받는다
             self.bump(100 + 40 * max(0, self.limit - self.moves))
         elif self.moves >= self.limit:
             self.over = True
 
-    def key(self, k):
+    @property
+    def done(self):
+        return self.won or self.over
+
+    @property
+    def banner(self):
+        if self.won:
+            return (t("성공! Enter 로 다음"), "#2f6ea8")
         if self.over:
+            return (t("횟수 초과 — Enter 로 다시"), "#c9384a")
+        return None
+
+    def key(self, k):
+        if self.done:
             if k in ("Return", "KP_Enter", "space"):
                 if self.won:
                     self.next_level()
@@ -178,8 +191,4 @@ class FloodIt(Game):
                     t("%d단계   %d / %d 칸   남은 횟수 %d")
                     % (self.level + 1, len(owned), N * N, left),
                     9, DIM if left > 5 else "#c9384a")
-        if self.over:
-            center_text(c, x + w / 2, oy + bw / 2,
-                        t("성공! Enter 로 다음") if self.won
-                        else t("횟수 초과 — Enter 로 다시"),
-                        14, "#2f6ea8" if self.won else "#c9384a")
+

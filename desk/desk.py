@@ -357,11 +357,14 @@ class Shell:
         c.create_text(W / 2, H - 9, fill=DIM, font=(FONT, 7),
                       text=t("%s     M 게임 고르기 · ESC 내리기 · %s 꺼내기")
                            % (t(g.help), hotkey.label(self.hotkey.spec)))
-        if g.over:
-            c.create_text(W / 2, H / 2 + 1, text="GAME OVER — R", fill="#ffffff",
-                          font=(FONT, 17, "bold"))
-            c.create_text(W / 2, H / 2, text="GAME OVER — R", fill="#c9384a",
-                          font=(FONT, 17, "bold"))
+        banner = g.banner
+        if banner:
+            text, color = banner
+            for dx, dy in ((1, 1), (-1, -1), (1, -1), (-1, 1)):
+                c.create_text(W / 2 + dx, H / 2 + dy, text=text, fill="#ffffff",
+                              font=(FONT, 15, "bold"))
+            c.create_text(W / 2, H / 2, text=text, fill=color,
+                          font=(FONT, 15, "bold"))
 
     def quit(self):
         self.save()

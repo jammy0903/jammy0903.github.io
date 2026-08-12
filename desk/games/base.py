@@ -58,6 +58,15 @@ class Game:
     def load(self, d):
         pass
 
+    @property
+    def banner(self):
+        """판 한가운데에 띄울 (문구, 색). 없으면 None.
+
+        게임마다 따로 그리면 셸이 그리는 'GAME OVER' 와 겹쳐서 두 줄이
+        같이 나온다. 그래서 문구만 알려 주고 그리는 건 셸이 맡는다.
+        """
+        return ("GAME OVER — R", "#c9384a") if self.over else None
+
     def jump(self, delta):
         """레벨 건너뛰기. 레벨이 있는 게임만 반응한다.
 

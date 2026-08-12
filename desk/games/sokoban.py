@@ -227,6 +227,10 @@ class Sokoban(Game):
         self.level = (self.level + 1) % LEVELS
         self.load_level()
 
+    @property
+    def banner(self):
+        return (t("성공! Enter 로 다음 판"), "#2f6ea8") if self.cleared else None
+
     def solved(self):
         return self.boxes == set(self.goals)
 
@@ -331,6 +335,4 @@ class Sokoban(Game):
         center_text(c, x + w / 2, oy + bh + 20,
                     t("%d / %d 판   %d수   상자 %d") %
                     (self.level + 1, LEVELS, self.moves, len(self.boxes)), 9, DIM)
-        if self.cleared:
-            center_text(c, x + w / 2, oy + bh / 2, t("성공! Enter 로 다음 판"), 13,
-                        "#2f6ea8")
+

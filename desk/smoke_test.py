@@ -290,6 +290,28 @@ f.grid = [[0] * f.n for _ in range(f.n)]
 f.flood(3)
 ok(len(f.blob()) == f.n ** 2 and f.won, "Flood It 한 수로 완성")
 ok(f.score > 0, "Flood It 점수")
+
+# 끝 문구는 한 줄만 나와야 한다 — 성공인데 GAME OVER 가 같이 뜨면 안 된다
+ok(not f.over, "Flood It 성공은 '게임 오버'가 아님")
+ok(f.banner and "성공" in f.banner[0], "성공 문구")
+ok(f.banner[0] != "GAME OVER — R", "성공에 GAME OVER 가 안 붙음")
+f_lost = floodit.FloodIt()
+f_lost.over = True
+ok(f_lost.banner and "초과" in f_lost.banner[0], "횟수 초과 문구")
+tover = tetris.Tetris()
+ok(tover.banner is None, "진행 중에는 문구 없음")
+tover.over = True
+ok(tover.banner[0] == "GAME OVER — R", "게임 오버 문구는 기본값")
+
+if canvas is not None:
+    for g4, label in ((f, "Flood It 성공"), (f_lost, "Flood It 실패"),
+                      (tover, "테트리스 게임오버")):
+        canvas.delete("all")
+        g4.draw(canvas, 0, 26, 400, 476)
+        drawn = [canvas.itemcget(i, "text") for i in canvas.find_all()
+                 if canvas.type(i) == "text"]
+        ok(not [d for d in drawn if "GAME OVER" in d or "Enter 로" in d],
+           "%s: 게임이 끝 문구를 직접 그리지 않음(셸이 그림)" % label)
 tight = []
 for lv in range(0, floodit.LEVELS, 7):
     g2 = floodit.FloodIt()
