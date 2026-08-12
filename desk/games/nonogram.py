@@ -137,7 +137,7 @@ def make(n, level):
 
 class Nonogram(Game):
     name = "NONOGRAM"
-    help = "클릭·드래그로 칠하기 · Tab 칠하기/X 전환 · S 판 크기 · , . 판 넘기기"
+    help = "클릭·드래그로 칠하기 · Tab 칠하기/X 전환 · 다 채운 줄은 X 자동"
     LEVELS = LEVELS
 
     def reset(self):
@@ -209,8 +209,30 @@ class Nonogram(Game):
     def paint(self, r, c, value):
         """같은 값을 다시 칠하면 지워진다."""
         self.grid[r][c] = 0 if self.grid[r][c] == value else value
+        self.autofill()
         self.check()
         return self.grid[r][c]
+
+    def autofill(self):
+        """검은 칸이 힌트대로 다 채워진 줄은 나머지를 X로 메운다.
+
+        어떤 줄의 검은 칸 배열이 그 줄의 힌트와 정확히 같으면, 그 줄에서
+        남은 칸은 반드시 빈칸이다. 손으로 X를 찍는 건 순전한 노동이라
+        대신 해 준다.
+        """
+        n = self.n
+        for r in range(n):
+            if self.line_done([self.grid[r][i] for i in range(n)],
+                              self.row_clues[r]):
+                for i in range(n):
+                    if self.grid[r][i] == 0:
+                        self.grid[r][i] = XMARK
+        for c in range(n):
+            if self.line_done([self.grid[i][c] for i in range(n)],
+                              self.col_clues[c]):
+                for i in range(n):
+                    if self.grid[i][c] == 0:
+                        self.grid[i][c] = XMARK
 
     # --- 마우스 ---
     def click(self, x, y, button=1, drag=False):
@@ -242,6 +264,7 @@ class Nonogram(Game):
                 return False
             if self.grid[r][c] != self._paint:
                 self.grid[r][c] = self._paint
+                self.autofill()
                 self.check()
             return True
         self._paint = self.paint(r, c, want)

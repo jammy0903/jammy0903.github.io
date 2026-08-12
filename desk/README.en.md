@@ -95,7 +95,10 @@ actually **solvable**, which each game does differently:
   determined by line logic alone (no guessing) ship. All 500 verified, ~0.1 s each.
 - **Sokoban** — built backwards. Start from the solved position and *pull* boxes
   around; reversing the pulls is a solution by construction, so no search is needed
-  at play time.
+  at play time. Pulls are biased **away from the goals** — pulling purely at random
+  lets boxes drift back and forth and settle right next to where they started.
+  Verification replays those pulls forward: all 200 levels in 10 seconds, where the
+  equivalent BFS check takes 13 minutes.
 - **Flood It** — the move limit is derived from a greedy solve ("always take the
   colour that swallows the most") plus slack. Since that is a strategy a human can
   actually follow, no stage is impossible.
@@ -136,6 +139,8 @@ Delete the file to reset everything.
   painting filled cells or X marks is switched with the button under the board (or
   `Tab`), and the **right mouse button paints the other one**. A drag commits to the
   value decided on the first cell, so passing over cells never flickers them on and off.
+  **When a line's filled cells match its clue, the rest of that line is X'd
+  automatically** — those cells are provably empty, so marking them by hand is busywork.
 - **Flood It** — your connected region is outlined in white. Fewer moves, more points.
 - **Sokoban** — push boxes onto the yellow circles. You cannot pull (but `U` undoes).
 
