@@ -22,14 +22,14 @@ DIRS = [(1, 0), (-1, 0), (0, 1), (0, -1)]
 def tier(level):
     """(세로, 가로, 상자 수, 목표 당김 횟수)."""
     if level < 20:
-        return 6, 6, 1, 4
-    if level < 60:
         return 7, 7, 2, 8
-    if level < 110:
+    if level < 60:
         return 7, 8, 3, 12
-    if level < 160:
+    if level < 110:
         return 8, 8, 3, 16
-    return 8, 9, 4, 20
+    if level < 160:
+        return 8, 9, 4, 20
+    return 9, 9, 4, 24
 
 
 def neighbors(cell):
@@ -156,7 +156,9 @@ def build(level):
 
 class Sokoban(Game):
     name = "SOKOBAN"
-    help = "방향키로 밀기 · U 무르기 · R 이 판 다시 · Enter 다음 판"
+    help = "방향키로 밀기 · U 무르기 · , . 판 넘기기 · Enter 다음 판"
+
+    LEVELS = LEVELS
 
     def reset(self):
         """R은 '이 판 다시'다. 올라온 레벨은 그대로 둔다."""

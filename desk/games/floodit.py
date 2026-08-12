@@ -10,9 +10,9 @@ LEVELS = 60
 
 def tier(level):
     """(판 크기, 쓰는 색 수, 봐주는 여유 수). 뒤로 갈수록 크고 빡빡해진다."""
-    n = min(18, 8 + level // 5)
-    colors = min(len(COLORS), 4 + level // 20)
-    slack = max(2, 7 - level // 10)
+    n = min(20, 11 + level // 4)
+    colors = min(len(COLORS), 5 + level // 25)
+    slack = max(1, 5 - level // 12)
     return n, colors, slack
 
 
@@ -59,7 +59,9 @@ def greedy_moves(grid, n, ncolors):
 
 class FloodIt(Game):
     name = "FLOOD IT"
-    help = "← → 색 고르기 · Space 칠하기 · R 이 판 다시"
+    help = "← → 색 고르기 · Space 칠하기 · , . 단계 넘기기"
+
+    LEVELS = LEVELS
 
     def reset(self):
         """R은 '이 판 다시'다. 올라온 단계는 그대로 둔다."""

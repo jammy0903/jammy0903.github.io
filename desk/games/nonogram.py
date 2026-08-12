@@ -12,22 +12,21 @@ import random
 from .base import DIM, Game, LINE, PANEL, center_text
 from .i18n import t
 
-LEVELS = 500
+LEVELS = 500            # 크기마다 500판
 FILL = "#2f3a49"
 MARK = "#c4727f"        # X 표시. 반투명하게 깔아 놔도 보이도록 진한 색
 
-# (마지막 레벨, 판 크기) — 10x10에서 시작해서 뒤로 갈수록 커진다
-SIZES = [(80, 10), (180, 11), (300, 12), (400, 13),
-         (470, 14), (LEVELS, 15)]
+SIZES = (10, 15, 20)    # S 키로 고른다. 크기마다 진행도가 따로 쌓인다
+
+# 판이 클수록 성긴 판을 '논리로만' 풀기 어려워진다(줄마다 경우의 수가 많아져서).
+# 그래서 크기마다 밀도를 내릴 수 있는 바닥이 다르다. 이 값보다 낮추면
+# 판 하나 만드는 데 몇 초씩 걸리고 못 푸는 판도 생긴다.
+DENSITY = {10: (0.68, 0.48), 15: (0.68, 0.55), 20: (0.70, 0.60)}
+
+# 크기별 (힌트 자리 폭, 힌트 글자 크기)
+LAYOUT = {10: (70, 8), 15: (80, 6), 20: (88, 5)}
 
 _options_cache = {}
-
-
-def size_for(level):
-    for last, n in SIZES:
-        if level + 1 <= last:
-            return n
-    return SIZES[-1][1]
 
 
 def clues(line):
@@ -108,16 +107,16 @@ def line_solve(row_clues, col_clues, n):
     return grid if all(v >= 0 for row in grid for v in row) else None
 
 
-def make(level):
-    """레벨 번호로 판 하나. 같은 번호면 언제나 같은 판."""
-    n = size_for(level)
-    rnd = random.Random(9173 + level * 7919)
+def make(n, level):
+    """(크기, 레벨)로 판 하나. 같은 조합이면 언제나 같은 판."""
+    rnd = random.Random(9173 + n * 104729 + level * 7919)
     # 뒤로 갈수록 밀도를 0.5 쪽으로 — 꽉 차거나 텅 빈 줄이 줄어 힌트가 약해진다
+    top, floor = DENSITY[n]
     ramp = min(1.0, level / float(LEVELS))
     # 밀도는 뒤로 갈수록 0.5 쪽으로. 꽉 차거나 텅 빈 줄이 줄어 힌트가 약해진다.
     # (큰 판이라고 밀도를 더 낮춰 보면 오히려 논리로 안 풀리는 판이 늘어난다 —
     #  성긴 판은 줄마다 배치 경우의 수가 많아져서 확정되는 칸이 줄기 때문)
-    density = 0.68 - 0.20 * ramp
+    density = top - (top - floor) * ramp
     for _ in range(400):
         sol = [[1 if rnd.random() < density else 0 for _ in range(n)]
                for _ in range(n)]
@@ -128,8 +127,8 @@ def make(level):
         cc = [clues([sol[r][c] for r in range(n)]) for c in range(n)]
         if line_solve(rc, cc, n) is not None:
             return sol, rc, cc
-    # 여기까지 오면 밀도가 나빴던 것. 성긴 판은 거의 항상 풀린다.
-    sol = [[1 if rnd.random() < 0.45 else 0 for _ in range(n)] for _ in range(n)]
+    # 여기까지 오는 일은 거의 없다. 촘촘한 판은 거의 항상 논리로 풀린다.
+    sol = [[1 if rnd.random() < top else 0 for _ in range(n)] for _ in range(n)]
     rc = [clues(r) for r in sol]
     cc = [clues([sol[r][c] for r in range(n)]) for c in range(n)]
     return sol, rc, cc
@@ -137,24 +136,38 @@ def make(level):
 
 class Nonogram(Game):
     name = "NONOGRAM"
-    help = "방향키 · Space 칠하기 · X 표시 · Enter 다음 판 · R 이 판 다시"
+    help = "방향키 · Space 칠하기 · X 표시 · S 판 크기 · , . 판 넘기기"
+    LEVELS = LEVELS
 
     def reset(self):
         """R은 '이 판 다시'다. 어렵게 올라온 레벨을 실수로 날리지 않게."""
-        self.level = getattr(self, "level", 0)
+        # 크기마다 진행도를 따로 센다 — 10x10 하다가 20x20 갔다 와도 그대로다
+        self.progress = getattr(self, "progress", {n: 0 for n in SIZES})
+        self.n = getattr(self, "n", SIZES[0])
         self.score = getattr(self, "score", 0)
         self.over = False
         self.load_level()
 
+    @property
+    def level(self):
+        return self.progress[self.n]
+
+    @level.setter
+    def level(self, v):
+        self.progress[self.n] = v % LEVELS
+
     def load_level(self):
-        self.n = size_for(self.level)
-        self.sol, self.row_clues, self.col_clues = make(self.level)
+        self.sol, self.row_clues, self.col_clues = make(self.n, self.level)
         self.grid = [[0] * self.n for _ in range(self.n)]   # 0 미정 1 칠함 2 X
         self.cr = self.cc = 0
         self.done = False
 
     def next_level(self):
-        self.level = (self.level + 1) % LEVELS
+        self.level += 1
+        self.load_level()
+
+    def set_size(self, n):
+        self.n = n
         self.load_level()
 
     def key(self, k):
@@ -167,6 +180,8 @@ class Nonogram(Game):
             self.cr = (self.cr - 1) % n
         elif k == "Down":
             self.cr = (self.cr + 1) % n
+        elif k in ("s", "S"):
+            self.set_size(SIZES[(SIZES.index(self.n) + 1) % len(SIZES)])
         elif k in ("Return", "KP_Enter"):
             if self.done:
                 self.next_level()
@@ -192,25 +207,28 @@ class Nonogram(Game):
 
     # --- 저장 ---
     def state(self):
-        return {"level": self.level, "grid": self.grid, "score": self.score,
+        return {"n": self.n, "progress": {str(k): v
+                                          for k, v in self.progress.items()},
+                "grid": self.grid, "score": self.score,
                 "cr": self.cr, "cc": self.cc, "done": self.done}
 
     def load(self, d):
-        self.level = d["level"] % LEVELS
+        saved = d.get("progress") or {}
+        self.progress = {n: int(saved.get(str(n), 0)) % LEVELS for n in SIZES}
+        self.n = d["n"] if d.get("n") in SIZES else SIZES[0]
         self.load_level()
-        saved = d["grid"]
-        if len(saved) == self.n and all(len(r) == self.n for r in saved):
-            self.grid = [list(r) for r in saved]
+        grid = d["grid"]
+        if len(grid) == self.n and all(len(r) == self.n for r in grid):
+            self.grid = [list(r) for r in grid]
         self.score = d["score"]
-        self.cr, self.cc, self.done = d["cr"], d["cc"], d["done"]
+        self.cr, self.cc, self.done = d["cr"] % self.n, d["cc"] % self.n, d["done"]
         self.over = False
 
     # --- 그리기 ---
     def draw(self, c, x, y, w, h):
         n = self.n
-        pad = 86                                   # 힌트 자리
+        pad, fs = LAYOUT[n]
         cell = int(min((w - pad - 16) / n, (h - pad - 44) / n))
-        fs = 8 if n <= 8 else 7 if n <= 10 else 6
         bw = cell * n
         ox = x + pad + (w - pad - bw) / 2
         oy = y + pad
@@ -256,8 +274,8 @@ class Nonogram(Game):
                            outline="#2f6ea8", width=2)
 
         center_text(c, x + w / 2, oy + bw + 24,
-                    t("%d / %d 판   %dx%d") % (self.level + 1, LEVELS, n, n),
-                    9, DIM)
+                    t("%d / %d 판   %dx%d  (S 크기)")
+                    % (self.level + 1, LEVELS, n, n), 9, DIM)
         if self.done:
             center_text(c, x + w / 2, oy + bw / 2, t("완성! Enter 로 다음 판"), 13,
                         "#2f6ea8")

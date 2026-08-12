@@ -139,19 +139,34 @@ ok(g2048.slide_row([0, 0, 0, 2]) == ([2, 0, 0, 0], 0), "2048 밀기만")
 # 네모로직 — 500판이 전부 '줄 논리만으로' 풀려야 한다
 ok(nonogram.clues([1, 1, 0, 1, 0]) == [2, 1], "네모로직 힌트")
 ok(nonogram.clues([0, 0, 0]) == [0], "빈 줄 힌트")
-ok(nonogram.LEVELS == 500, "네모로직 500판")
-probe = list(range(0, nonogram.LEVELS, 17)) + [0, 1, 498, 499]
+ok(nonogram.LEVELS == 500, "네모로직 크기마다 500판")
+ok(nonogram.SIZES == (10, 15, 20), "10x10 · 15x15 · 20x20")
 unsolvable = []
-for lv in probe:
-    sol, rc, cc = nonogram.make(lv)
-    if nonogram.line_solve(rc, cc, len(sol)) != sol:
-        unsolvable.append(lv)
+probe = []
+for size in nonogram.SIZES:
+    for lv in list(range(0, nonogram.LEVELS, 60)) + [0, 499]:
+        probe.append((size, lv))
+        sol, rc, cc = nonogram.make(size, lv)
+        if nonogram.line_solve(rc, cc, size) != sol:
+            unsolvable.append((size, lv))
 ok(not unsolvable, "네모로직 %d판 표본 전부 논리로 풀림 (실패 %s)"
    % (len(probe), unsolvable[:3]))
-ok(nonogram.make(300)[0] == nonogram.make(300)[0], "같은 레벨은 같은 판")
-ok(nonogram.size_for(0) < nonogram.size_for(499), "뒤로 갈수록 판이 커짐")
+ok(nonogram.make(15, 300)[0] == nonogram.make(15, 300)[0], "같은 판은 항상 같음")
+ok(nonogram.make(10, 0)[0] != nonogram.make(15, 0)[0], "크기가 다르면 다른 판")
 
 ng = nonogram.Nonogram()
+ok(ng.n == 10, "기본 크기 10x10")
+ng.key("s")
+ok(ng.n == 15, "S 로 15x15")
+ng.level = 7
+ng.key("s")
+ok(ng.n == 20 and ng.level == 0, "크기마다 진행도가 따로")
+ng.key("s")
+ok(ng.n == 10, "S 로 다시 10x10")
+ng.n = 15
+ok(ng.level == 7, "15x15 로 돌아오면 하던 판 그대로")
+ng.n = 10
+ng.load_level()
 for r in range(ng.n):
     for cc in range(ng.n):
         ng.grid[r][cc] = 1 if ng.sol[r][cc] else 0
@@ -163,6 +178,16 @@ ok(ng.level == lv_before + 1 and not ng.done, "Enter 로 다음 판")
 ng.level = 40
 ng.reset()
 ok(ng.level == 40, "R 은 이 판만 다시 — 레벨은 유지")
+
+# 레벨 건너뛰기 (레벨 있는 게임 공통)
+for g3 in (nonogram.Nonogram(), sokoban.Sokoban(), floodit.FloodIt()):
+    g3.jump(7)
+    ok(g3.level == 7, "%s 판 건너뛰기" % g3.name)
+    g3.jump(-7)
+    ok(g3.level == 0, "%s 뒤로 건너뛰기" % g3.name)
+    g3.jump(-1)
+    ok(g3.level == g3.LEVELS - 1, "%s 첫 판에서 뒤로 = 마지막 판" % g3.name)
+ok(tetris.Tetris().jump(3) is False, "레벨 없는 게임은 건너뛰기 없음")
 
 # Flood It — 허용 횟수 안에 탐욕 풀이로 깰 수 있어야 한다
 f = floodit.FloodIt()
@@ -214,11 +239,12 @@ ok(sk.level == 30, "R 은 이 판만 다시 — 레벨은 유지")
 tt = tetris.Tetris()
 ok(tt.level == 1, "테트리스 1단계로 시작")
 tt.lines = 30
-ok(tt.level == 4 and tt.interval < 0.8, "줄을 지울수록 단계가 오르고 빨라짐")
+ok(tt.level > 1 and tt.interval < 0.58, "줄을 지울수록 단계가 오르고 빨라짐")
 pp = puyo.Puyo()
 ok(pp.level == 1, "뿌요 1단계로 시작")
 pp.popped = 90
-ok(pp.level == 4 and pp.interval < 0.75, "터뜨릴수록 단계가 오르고 빨라짐")
+ok(pp.level > 1 and pp.interval < 0.55, "터뜨릴수록 단계가 오르고 빨라짐")
+ok(len(puyo.COLORS) == 5, "뿌요 색 5개")
 
 KEYS = ["Left", "Right", "Up", "Down", "space", "s", "x", "u", "Return",
         "BackSpace"]

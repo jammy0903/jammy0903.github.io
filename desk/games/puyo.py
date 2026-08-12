@@ -5,7 +5,7 @@ from .base import EMPTY, Game, LINE, PANEL, center_text
 from .i18n import t
 
 COLS, ROWS = 6, 12
-COLORS = ["#c9384a", "#4c8f3f", "#2f6ea8", "#c9a227"]
+COLORS = ["#c9384a", "#4c8f3f", "#2f6ea8", "#c9a227", "#8155b8"]
 NEED = 4                                   # 몇 개 붙어야 터지나
 CHAIN = [0, 8, 16, 32, 64, 96, 128, 160, 192, 224, 256]   # 연쇄 배수
 # 회전 방향: 0=위 1=오른쪽 2=아래 3=왼쪽
@@ -142,12 +142,12 @@ class Puyo(Game):
     # --- 시간 ---
     @property
     def level(self):
-        """터뜨린 뿌요가 쌓일수록 단계가 오르고 빨리 떨어진다."""
-        return self.popped // 30 + 1
+        """24개 터뜨릴 때마다 한 단계. 색이 5개라 4개 붙이기가 만만치 않다."""
+        return self.popped // 24 + 1
 
     @property
     def interval(self):
-        return max(0.12, 0.75 - 0.03 * (self.level - 1))
+        return max(0.10, 0.55 - 0.03 * (self.level - 1))
 
     def tick(self, dt):
         if self.over:

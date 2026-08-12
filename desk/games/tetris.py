@@ -133,12 +133,12 @@ class Tetris(Game):
     # --- 시간 ---
     @property
     def level(self):
-        """10줄마다 한 단계. 올라갈수록 빨리 떨어지고 점수 배수가 커진다."""
-        return self.lines // 10 + 1
+        """8줄마다 한 단계. 올라갈수록 빨리 떨어지고 점수 배수가 커진다."""
+        return self.lines // 8 + 1
 
     @property
     def interval(self):
-        return max(0.08, 0.80 - 0.07 * (self.level - 1))
+        return max(0.07, 0.58 - 0.055 * (self.level - 1))
 
     def tick(self, dt):
         if self.over:

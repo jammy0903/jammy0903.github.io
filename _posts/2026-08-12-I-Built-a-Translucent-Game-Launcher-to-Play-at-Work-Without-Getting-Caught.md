@@ -28,13 +28,18 @@ using nothing but the Python standard library (tkinter) — nothing to install.
 | # | Game | # | Game |
 |---|---|---|---|
 | 1 | Tetris | 6 | Triple Town |
-| 2 | Suika (watermelon game) | 7 | Nonogram (500 puzzles) |
+| 2 | Suika (watermelon game) | 7 | Nonogram (1,500 puzzles) |
 | 3 | Puyo Puyo | 8 | Flood It (60 stages) |
 | 4 | 2048 | 9 | Sokoban (200 levels) |
 | 5 | Threes! | | |
 
 `M` opens a picker, `1`–`9` jump straight to a game. **All nine boards are saved
 separately**, so wandering off to another game and coming back leaves yours untouched.
+
+The level-based games (Nonogram, Sokoban, Flood It) let you jump to any level with
+`,` `.` — shipping 1,500 puzzles you can only reach one at a time would be pointless.
+Nonogram picks between **10x10 / 15x15 / 20x20** with `S`, and each size keeps its
+own progress.
 
 ---
 
@@ -113,9 +118,16 @@ merged = [fits[0][j] if all(f[j] == fits[0][j] for f in fits) else -1
           for j in range(n)]
 ```
 
-**All 500 verified. 100% pass**, under 0.1s each. Boards grow 10x10 → 15x15, and the
-fill density drifts toward 0.5 so there are fewer completely full or empty lines —
-which means the clues carry less information, which means harder.
+**All 1,500 verified — 500 per size. 100% pass**, most generated in under 0.01s.
+
+Difficulty comes from the fill density, which drifts toward 0.5 so there are fewer
+completely full or empty lines — the clues carry less information, so it gets harder.
+
+I got one thing backwards here. I assumed **bigger boards should use a lower density**,
+tried it, and the exhaustive check went from 5.8s to 80s with six unsolvable boards.
+Sparser lines admit *more* possible arrangements, so **fewer cells get pinned down.**
+Each size now has its own density floor — below 0.60 a 20x20 board takes seconds to
+generate.
 
 ### Sokoban is built backwards
 
@@ -149,6 +161,8 @@ level 7:
 ```
 
 Fixed to `man = stand`, then **BFS-solved all 200 levels for real. Zero failures.**
+(That check alone takes 13 minutes — 9x9 with four boxes has a large state space.
+Generating a board is still 0.01s, since that direction needs no search at all.)
 
 ### Why the global hotkey didn't work
 
@@ -220,7 +234,8 @@ About 2,800 lines total. Zero external dependencies.
 | `H` | Opacity to zero (fastest) |
 | `M` | Game menu |
 | `1`–`9` | Jump to a game |
-| `[` `]` | Dimmer / brighter |
+| `[` `]` | Dimmer / brighter (or drag the slider in the menu) |
+| `,` `.` | Change level (`PageUp`/`PageDown` moves 10) |
 | `L` | Korean / English |
 | `R` | Retry this board |
 | `Ctrl+Q` | Actually quit |

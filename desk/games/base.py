@@ -25,6 +25,7 @@ class Game:
 
     name = "game"
     help = ""
+    LEVELS = 0          # 0이면 레벨이 없는 게임
 
     def __init__(self):
         self.score = 0
@@ -49,6 +50,17 @@ class Game:
 
     def load(self, d):
         pass
+
+    def jump(self, delta):
+        """레벨 건너뛰기. 레벨이 있는 게임만 반응한다.
+
+        500판을 넣어 놓고 한 판씩만 넘어갈 수 있으면 뒷판을 볼 길이 없다.
+        """
+        if not self.LEVELS:
+            return False
+        self.level = (self.level + delta) % self.LEVELS
+        self.load_level()
+        return True
 
     # --- 헬퍼 ---
     def bump(self, points):
