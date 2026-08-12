@@ -113,7 +113,7 @@ merged = [fits[0][j] if all(f[j] == fits[0][j] for f in fits) else -1
           for j in range(n)]
 ```
 
-**All 500 verified. 100% pass**, under 0.1s each. Boards grow 5x5 → 12x12, and the
+**All 500 verified. 100% pass**, under 0.1s each. Boards grow 10x10 → 15x15, and the
 fill density drifts toward 0.5 so there are fewer completely full or empty lines —
 which means the clues carry less information, which means harder.
 

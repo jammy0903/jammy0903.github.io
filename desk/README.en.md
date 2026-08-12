@@ -53,7 +53,7 @@ instead of closing, so a board is never lost by accident.
 
 | Game | Count | How it gets harder |
 | --- | --- | --- |
-| Nonogram | **500 puzzles** | 5x5 → 12x12; density drifts toward 0.5 so clues say less |
+| Nonogram | **500 puzzles** | 10x10 → 15x15; density drifts toward 0.5 so clues say less |
 | Sokoban | **200 levels** | bigger rooms, 1 → 4 boxes, deeper scrambles |
 | Flood It | **60 stages** | 8x8/4 colours → 18x18/6 colours, move slack 7 → 2 |
 | Tetris | endless | a level every 10 lines: faster drops, bigger score multiplier |

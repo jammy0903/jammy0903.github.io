@@ -14,11 +14,11 @@ from .i18n import t
 
 LEVELS = 500
 FILL = "#2f3a49"
-MARK = "#b9c2ce"
+MARK = "#c4727f"        # X 표시. 반투명하게 깔아 놔도 보이도록 진한 색
 
-# (마지막 레벨, 판 크기) — 뒤로 갈수록 커진다
-SIZES = [(40, 5), (100, 6), (170, 7), (250, 8),
-         (330, 9), (410, 10), (470, 11), (LEVELS, 12)]
+# (마지막 레벨, 판 크기) — 10x10에서 시작해서 뒤로 갈수록 커진다
+SIZES = [(80, 10), (180, 11), (300, 12), (400, 13),
+         (470, 14), (LEVELS, 15)]
 
 _options_cache = {}
 
@@ -114,6 +114,9 @@ def make(level):
     rnd = random.Random(9173 + level * 7919)
     # 뒤로 갈수록 밀도를 0.5 쪽으로 — 꽉 차거나 텅 빈 줄이 줄어 힌트가 약해진다
     ramp = min(1.0, level / float(LEVELS))
+    # 밀도는 뒤로 갈수록 0.5 쪽으로. 꽉 차거나 텅 빈 줄이 줄어 힌트가 약해진다.
+    # (큰 판이라고 밀도를 더 낮춰 보면 오히려 논리로 안 풀리는 판이 늘어난다 —
+    #  성긴 판은 줄마다 배치 경우의 수가 많아져서 확정되는 칸이 줄기 때문)
     density = 0.68 - 0.20 * ramp
     for _ in range(400):
         sol = [[1 if rnd.random() < density else 0 for _ in range(n)]
@@ -228,11 +231,12 @@ class Nonogram(Game):
                     c.create_rectangle(bx + 1, by + 1, bx + cell - 1, by + cell - 1,
                                        fill=FILL, outline="")
                 elif v == 2:
-                    m = max(4, cell // 4)
+                    m = max(3, cell // 5)
+                    wide = 3 if cell >= 22 else 2
                     c.create_line(bx + m, by + m, bx + cell - m, by + cell - m,
-                                  fill=MARK, width=2)
+                                  fill=MARK, width=wide, capstyle="round")
                     c.create_line(bx + cell - m, by + m, bx + m, by + cell - m,
-                                  fill=MARK, width=2)
+                                  fill=MARK, width=wide, capstyle="round")
 
         for r, cl in enumerate(self.row_clues):
             ok = self.line_done([self.grid[r][i] for i in range(n)], cl)
