@@ -11,11 +11,11 @@
                이미 쓰는 프로그램이 있으면 빈 키를 자동으로 찾는다
   H            투명도만 0으로. 한 번 더 누르면 복귀
   R            지금 게임만 새로 시작
-  Ctrl+Q       진짜 종료
+  Ctrl+Q       종료 (창 닫기 버튼도 종료)
 
 복귀 단축키는 hotkey.py의 HOTKEY 한 줄로 바꿀 수 있다.
 
-ESC로 내려도 판·점수·최고점은 그대로 남는다. 종료는 Ctrl+Q 뿐이다.
+ESC로 내려도 판·점수·최고점은 그대로 남는다. 끄는 건 Ctrl+Q 또는 창 닫기 버튼.
 """
 import json
 import os
@@ -78,8 +78,7 @@ class Shell:
         self.root.bind("<Key>", self.on_key)
         self.root.bind("<Control-q>", lambda e: self.quit())
         self.root.bind("<Unmap>", self.on_unmap)
-        # 창 닫기 버튼도 종료가 아니라 '내리기'. 실수로 판이 날아가지 않게.
-        self.root.protocol("WM_DELETE_WINDOW", self.stash)
+        self.root.protocol("WM_DELETE_WINDOW", self.quit)
 
         # 작업표시줄로 내려가 있는 동안에는 창이 키를 못 받으므로 전역 단축키가 필요하다
         self.hotkey = GlobalHotkey(self.restore)
