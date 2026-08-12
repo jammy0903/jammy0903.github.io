@@ -9,11 +9,30 @@ python3 desk.py
 
 영어판은 `L` 키 한 번이면 된다 → [README.en.md](README.en.md)
 
-윈도우에서는 **`desk.bat`을 더블클릭**하면 된다. 콘솔 창 없이 게임 창만 뜬다.
+윈도우에서는 **`desk.exe`를 더블클릭**하면 된다. 파이썬이 없어도 되고,
+**작업표시줄에 고정**해 두면 클릭 한 번으로 열린다.
+(파이썬이 있으면 `desk.bat` 으로 소스를 바로 실행해도 된다.)
 (폴더째 윈도우 쪽으로 복사해 두고 쓰는 게 편하다 — 예: `C:\Users\<이름>\desk\`)
 
 바로 띄우고 싶으면 `desk.bat` 바로가기를 만들어
 `Win + R` → `shell:startup` 폴더에 넣으면 로그인할 때 자동 실행된다.
+
+## exe 만들기
+
+`build_exe.bat` 더블클릭. PyInstaller 만 있으면 된다.
+
+```
+py -m pip install pyinstaller
+build_exe.bat
+```
+
+`dist\desk.exe` 하나(약 11MB)가 나온다. 파이썬이 없는 PC에도 그 파일만 복사하면 된다.
+아이콘은 `make_icon.py` 가 표준 라이브러리만으로 그려서 만든다(외부 도구 없음).
+
+**작업표시줄에 고정** — `desk.exe` 를 한 번 실행한 뒤, 작업표시줄 아이콘을
+오른쪽 클릭 → "작업 표시줄에 고정".
+
+기록 파일(`~/.deskgames.json`)은 exe 든 소스 실행이든 같은 것을 쓴다.
 
 ## 조작
 

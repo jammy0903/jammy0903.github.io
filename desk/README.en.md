@@ -7,9 +7,27 @@ Pure Python standard library (tkinter). Nothing to install.
 python3 desk.py
 ```
 
-On Windows, **double-click `desk.bat`** — it launches without a console window.
+On Windows, **double-click `desk.exe`** — no Python needed, and you can **pin it to
+the taskbar** to open it with one click. (With Python installed, `desk.bat` runs the
+source directly.)
 
 Press `L` at any time to switch between 한국어 and English.
+
+## Building the exe
+
+Double-click `build_exe.bat`; it only needs PyInstaller.
+
+```
+py -m pip install pyinstaller
+build_exe.bat
+```
+
+You get a single `dist\desk.exe` (~11 MB) that runs on a PC without Python. The icon
+is drawn by `make_icon.py` using only the standard library — no image tools involved.
+
+**To pin it**: run `desk.exe` once, then right-click its taskbar icon → *Pin to taskbar*.
+
+The save file (`~/.deskgames.json`) is shared between the exe and the source.
 
 ## Keys
 
