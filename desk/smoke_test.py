@@ -152,6 +152,28 @@ ok(g2048.slide_row([2, 2, 4, 0]) == ([4, 4, 0, 0], 4), "2048 합치기")
 ok(g2048.slide_row([2, 2, 2, 2]) == ([4, 4, 0, 0], 8), "2048 한 번씩만")
 ok(g2048.slide_row([0, 0, 0, 2]) == ([2, 0, 0, 0], 0), "2048 밀기만")
 
+# 2048 무르기
+gu = g2048.G2048()
+gu.grid = [[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+gu.score, gu.history = 0, []
+snap = [r[:] for r in gu.grid]
+gu.key("Left")
+ok(gu.score == 4 and len(gu.history) == 1, "2048 이동 후 기록됨")
+gu.key("BackSpace")
+ok(gu.grid == snap and gu.score == 0, "2048 무르기로 판과 점수 복원")
+ok(gu.best >= 4, "무르기해도 최고 기록은 유지")
+ok(gu.key("BackSpace") is True and gu.grid == snap, "더 무를 게 없어도 안 터짐")
+for _ in range(15):
+    gu.grid = [[2, 2, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0], [0, 0, 0, 0]]
+    gu.key("Left")
+ok(len(gu.history) == g2048.UNDO, "무르기 기록은 %d수까지만" % g2048.UNDO)
+import json as _json
+gu2 = g2048.G2048()
+gu2.load(_json.loads(_json.dumps(gu.state())))
+ok(len(gu2.history) == g2048.UNDO, "무르기 기록도 저장/복원됨")
+gu2.key("BackSpace")
+ok(gu2.grid == [list(r) for r in gu.history[-1][0]], "복원 후에도 무르기 동작")
+
 # 네모로직 — 500판이 전부 '줄 논리만으로' 풀려야 한다
 ok(nonogram.clues([1, 1, 0, 1, 0]) == [2, 1], "네모로직 힌트")
 ok(nonogram.clues([0, 0, 0]) == [0], "빈 줄 힌트")

@@ -28,14 +28,18 @@ def slide_row(row):
     return out + [0] * (N - len(out)), gained
 
 
+UNDO = 10               # 몇 수까지 무를 수 있나
+
+
 class G2048(Game):
     name = "2048"
-    help = "방향키로 밀기 · 같은 수끼리 합쳐진다"
+    help = "방향키로 밀기 · Backspace 무르기 (10수)"
 
     def reset(self):
         self.grid = [[0] * N for _ in range(N)]
         self.score = 0
         self.over = False
+        self.history = []
         self.spawn()
         self.spawn()
 
@@ -70,8 +74,12 @@ class G2048(Game):
                 g[N - 1 - j][i] = v
 
     def key(self, k):
+        if k == "BackSpace":
+            return self.undo()
         if self.over or k not in ("Left", "Right", "Up", "Down"):
             return False
+        # 새 타일이 어디 생길지는 무작위라, 되돌리려면 판을 통째로 기억해야 한다
+        snapshot = ([row[:] for row in self.grid], self.score)
         moved = False
         for i, line in enumerate(self.lines(k)):
             new, gained = slide_row(line)
@@ -80,8 +88,19 @@ class G2048(Game):
             self.bump(gained)
             self.put_line(k, i, new)
         if moved:
+            self.history.append(snapshot)
+            del self.history[:-UNDO]
             self.spawn()
             self.over = self.stuck()
+        return True
+
+    def undo(self):
+        """한 수 되돌리기. 점수도 같이 되돌아간다(최고 기록은 그대로)."""
+        if not self.history:
+            return True
+        self.grid, self.score = self.history.pop()
+        self.grid = [row[:] for row in self.grid]
+        self.over = False
         return True
 
     def stuck(self):
@@ -97,11 +116,14 @@ class G2048(Game):
 
     # --- 저장 ---
     def state(self):
-        return {"grid": self.grid, "score": self.score, "over": self.over}
+        return {"grid": self.grid, "score": self.score, "over": self.over,
+                "history": [[g, s] for g, s in self.history]}
 
     def load(self, d):
         self.grid = [list(r) for r in d["grid"]]
         self.score, self.over = d["score"], d["over"]
+        self.history = [([list(r) for r in g], s)
+                        for g, s in d.get("history", [])]
 
     # --- 그리기 ---
     def draw(self, c, x, y, w, h):
@@ -126,3 +148,6 @@ class G2048(Game):
                                 ink_on(fill))
         center_text(c, ox + bw / 2, oy + bw + 22,
                     t("가장 큰 수 %d") % best_tile, 8, DIM)
+        if self.history:
+            center_text(c, ox + bw / 2, oy + bw + 36,
+                        t("무를 수 있는 수 %d") % len(self.history), 7, DIM)

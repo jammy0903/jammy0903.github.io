@@ -32,8 +32,9 @@ EN = {
     "← → 위치 · Space 떨어뜨리기": "Left/Right aim · Space drop",
     "← → 이동 · ↑ 회전 · Z 반시계 · ↓ 내리기 · Space 떨구기":
         "Left/Right move · Up rotate · Z counter-clockwise · Down · Space drop",
-    "방향키로 밀기 · 같은 수끼리 합쳐진다":
-        "Arrows to slide · equal numbers merge",
+    "방향키로 밀기 · Backspace 무르기 (10수)":
+        "Arrows to slide · Backspace undo (10 moves)",
+    "무를 수 있는 수 %d": "%d undos left",
     "방향키로 한 칸씩 · 1+2=3 · 3부터는 같은 수끼리":
         "Arrows move one step · 1+2=3 · from 3 on, equal numbers",
     "방향키 커서 · Space 놓기 · S 보관칸 교체":
