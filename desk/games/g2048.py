@@ -28,18 +28,15 @@ def slide_row(row):
     return out + [0] * (N - len(out)), gained
 
 
-UNDO = 10               # 몇 수까지 무를 수 있나
-
-
 class G2048(Game):
     name = "2048"
-    help = "방향키로 밀기 · Backspace 무르기 (10수)"
+    help = "방향키로 밀기 · Backspace 한 수 무르기"
 
     def reset(self):
         self.grid = [[0] * N for _ in range(N)]
         self.score = 0
         self.over = False
-        self.history = []
+        self.prev = None            # 원래 규칙대로 한 수만 무른다
         self.spawn()
         self.spawn()
 
@@ -88,18 +85,21 @@ class G2048(Game):
             self.bump(gained)
             self.put_line(k, i, new)
         if moved:
-            self.history.append(snapshot)
-            del self.history[:-UNDO]
+            self.prev = snapshot
             self.spawn()
             self.over = self.stuck()
         return True
 
     def undo(self):
-        """한 수 되돌리기. 점수도 같이 되돌아간다(최고 기록은 그대로)."""
-        if not self.history:
+        """직전 한 수만 되돌린다. 점수도 같이 되돌아간다(최고 기록은 그대로).
+
+        연달아 눌러도 더 되돌아가지 않는다 — 원래 2048 규칙이 그렇다.
+        """
+        if self.prev is None:
             return True
-        self.grid, self.score = self.history.pop()
-        self.grid = [row[:] for row in self.grid]
+        grid, self.score = self.prev
+        self.grid = [row[:] for row in grid]
+        self.prev = None
         self.over = False
         return True
 
@@ -117,13 +117,13 @@ class G2048(Game):
     # --- 저장 ---
     def state(self):
         return {"grid": self.grid, "score": self.score, "over": self.over,
-                "history": [[g, s] for g, s in self.history]}
+                "prev": [self.prev[0], self.prev[1]] if self.prev else None}
 
     def load(self, d):
         self.grid = [list(r) for r in d["grid"]]
         self.score, self.over = d["score"], d["over"]
-        self.history = [([list(r) for r in g], s)
-                        for g, s in d.get("history", [])]
+        prev = d.get("prev")
+        self.prev = ([list(r) for r in prev[0]], prev[1]) if prev else None
 
     # --- 그리기 ---
     def draw(self, c, x, y, w, h):
@@ -148,6 +148,6 @@ class G2048(Game):
                                 ink_on(fill))
         center_text(c, ox + bw / 2, oy + bw + 22,
                     t("가장 큰 수 %d") % best_tile, 8, DIM)
-        if self.history:
+        if self.prev is not None:
             center_text(c, ox + bw / 2, oy + bw + 36,
-                        t("무를 수 있는 수 %d") % len(self.history), 7, DIM)
+                        t("Backspace 로 한 수 무르기"), 7, DIM)

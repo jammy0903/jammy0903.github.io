@@ -43,7 +43,7 @@ To actually quit, use `Ctrl+Q` or the window's X button — either way your prog
 | 1 | Tetris | `←` `→` move · `↑` rotate · **`Z` counter-clockwise** · `↓` soft drop · `Space` hard drop |
 | 2 | Suika (watermelon) | `←` `→` aim · `Space` drop |
 | 3 | Puyo Puyo | `←` `→` move · `↑` rotate · **`Z` counter-clockwise** · `↓` lower · `Space` drop |
-| 4 | 2048 | arrows · **`Backspace` undo (10 moves)** |
+| 4 | 2048 | arrows · **`Backspace` undoes one move** |
 | 5 | Threes! | arrows |
 | 6 | Triple Town | arrows move · `Space` place · `S` swap storage |
 | 7 | Nonogram | arrows · `Space` fill · `X` mark · **`S` board size** · `Enter` next |
@@ -103,9 +103,10 @@ Delete the file to reset everything.
   A fruit resting above the dashed line for 1.6 s ends the game.
 - **Puyo Puyo** — 6x12 with 5 colours. Four of a colour orthogonally connected pop, the rest falls,
   and the chain multiplier climbs steeply.
-- **2048** — standard; new tiles are 2 (90%) or 4 (10%). `Backspace` undoes up to 10
-  moves (the whole board is snapshotted, since new tiles land at random). Undoing
-  lowers the score again, but never the best score.
+- **2048** — standard; new tiles are 2 (90%) or 4 (10%). `Backspace` undoes **the last
+  move only** — pressing it again goes no further, as in the original. The whole board
+  is snapshotted, since new tiles land at random. Undoing lowers the score again, but
+  never the best score.
 - **Threes!** — everything moves exactly one cell. `1+2=3`, and from 3 on only equal
   numbers merge. The new tile enters from the edge you pushed away from.
 - **Triple Town** — 6x6. Three or more alike, orthogonally connected, become the next
