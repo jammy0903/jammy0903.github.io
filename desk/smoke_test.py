@@ -41,8 +41,24 @@ before = t.score
 t.lock()
 ok(all(v is None for v in t.grid[tetris.ROWS - 1]), "한 줄 삭제됨")
 ok(t.lines == 1 and t.score > before, "라인 수·점수 증가")
-ok(tetris.rotate([(0, 1), (1, 0), (1, 1), (1, 2)], 3) == [(1, 2), (0, 1), (1, 1), (2, 1)],
-   "T 회전")
+T_PIECE = [(0, 1), (1, 0), (1, 1), (1, 2)]
+ok(tetris.rotate(T_PIECE, 3) == [(1, 2), (0, 1), (1, 1), (2, 1)], "T 시계 회전")
+ok(sorted(tetris.rotate(tetris.rotate(T_PIECE, 3), 3, False)) == sorted(T_PIECE),
+   "시계 후 반시계 = 원위치")
+ok(sorted(tetris.rotate(T_PIECE, 3, False)) !=
+   sorted(tetris.rotate(T_PIECE, 3)), "반시계는 시계와 다름")
+turned = T_PIECE
+for _ in range(3):
+    turned = tetris.rotate(turned, 3, False)
+ok(sorted(turned) == sorted(tetris.rotate(T_PIECE, 3)), "반시계 3번 = 시계 1번")
+
+tz = tetris.Tetris()
+tz.key_id, tz.n, tz.cells, tz.pr, tz.pc = "T", 3, list(T_PIECE), 5, 4
+before = list(tz.cells)
+tz.key("z")
+ok(tz.cells != before, "Z 키로 회전됨")
+tz.key("Up")
+ok(sorted(tz.cells) == sorted(before), "↑ 로 되돌아옴")
 
 t = tetris.Tetris()
 t.pc = 0
@@ -246,7 +262,14 @@ pp.popped = 90
 ok(pp.level > 1 and pp.interval < 0.55, "터뜨릴수록 단계가 오르고 빨라짐")
 ok(len(puyo.COLORS) == 5, "뿌요 색 5개")
 
-KEYS = ["Left", "Right", "Up", "Down", "space", "s", "x", "u", "Return",
+pz = puyo.Puyo()
+pz.rot = 0
+pz.key("z")
+ok(pz.rot == 3, "뿌요 Z 는 반시계")
+pz.key("Up")
+ok(pz.rot == 0, "뿌요 ↑ 로 되돌아옴")
+
+KEYS = ["Left", "Right", "Up", "Down", "space", "s", "x", "u", "z", "Return",
         "BackSpace"]
 for cls in (tetris.Tetris, suika.Suika, puyo.Puyo, g2048.G2048, threes.Threes,
             tripletown.TripleTown, nonogram.Nonogram, floodit.FloodIt,

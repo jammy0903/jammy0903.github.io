@@ -14,7 +14,7 @@ OFF = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
 class Puyo(Game):
     name = "PUYO"
-    help = "← → 이동 · ↑ 회전 · ↓ 내리기 · Space 떨구기"
+    help = "← → 이동 · ↑ 회전 · Z 반시계 · ↓ 내리기 · Space 떨구기"
 
     def reset(self):
         self.grid = [[None] * COLS for _ in range(ROWS)]
@@ -62,8 +62,8 @@ class Puyo(Game):
         elif k == "Right":
             if not self.blocked(self.pr, self.pc + 1, self.rot):
                 self.pc += 1
-        elif k == "Up":
-            rot = (self.rot + 1) % 4
+        elif k in ("Up", "z", "Z"):
+            rot = (self.rot + (1 if k == "Up" else 3)) % 4
             for dc in (0, -1, 1):          # 벽에 붙어 있으면 한 칸 밀어 준다
                 if not self.blocked(self.pr, self.pc + dc, rot):
                     self.rot, self.pc = rot, self.pc + dc

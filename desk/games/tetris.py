@@ -21,14 +21,16 @@ CLEAR_SCORE = {1: 100, 2: 300, 3: 500, 4: 800}
 KICKS = (0, -1, 1, -2, 2)
 
 
-def rotate(cells, n):
-    """N x N 박스 안에서 시계방향 90도."""
-    return [(c, n - 1 - r) for r, c in cells]
+def rotate(cells, n, cw=True):
+    """N x N 박스 안에서 90도 회전. cw=False 면 반시계."""
+    if cw:
+        return [(c, n - 1 - r) for r, c in cells]
+    return [(n - 1 - c, r) for r, c in cells]
 
 
 class Tetris(Game):
     name = "TETRIS"
-    help = "← → 이동 · ↑ 회전 · ↓ 소프트드롭 · Space 하드드롭"
+    help = "← → 이동 · ↑ 회전 · Z 반시계 · ↓ 내리기 · Space 하드드롭"
 
     def reset(self):
         self.grid = [[None] * COLS for _ in range(ROWS)]
@@ -86,7 +88,9 @@ class Tetris(Game):
                 self.bump(1)
             return True
         if k == "Up":
-            return self.spin()
+            return self.spin(True)
+        if k in ("z", "Z"):
+            return self.spin(False)
         if k == "space":
             dropped = 0
             while self.step_down():
@@ -101,8 +105,8 @@ class Tetris(Game):
             self.pc += d
         return True
 
-    def spin(self):
-        turned = rotate(self.cells, self.n)
+    def spin(self, cw=True):
+        turned = rotate(self.cells, self.n, cw)
         for dx in KICKS:
             if not self.collides(turned, self.pr, self.pc + dx):
                 self.cells, self.pc = turned, self.pc + dx
