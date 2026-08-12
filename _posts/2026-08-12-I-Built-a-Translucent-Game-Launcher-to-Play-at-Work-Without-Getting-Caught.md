@@ -60,8 +60,8 @@ It never darkens the background, so the screen doesn't visibly dim either.
 `ESC` **doesn't quit — it drops the window to the taskbar.** Your board and score
 survive. `F8` brings it back.
 
-`Ctrl+Q` is the only way to actually quit. Even the window's X button hides instead
-of closing. Panic-pressing something shouldn't cost you a board.
+`ESC` deliberately isn't quit — panic-pressing it shouldn't cost you a board.
+To actually close it, `Ctrl+Q` or the window's X button. Either way progress is saved.
 
 ### 3. `H` is the fast one
 
@@ -238,7 +238,7 @@ About 2,800 lines total. Zero external dependencies.
 | `,` `.` | Change level (`PageUp`/`PageDown` moves 10) |
 | `L` | Korean / English |
 | `R` | Retry this board |
-| `Ctrl+Q` | Actually quit |
+| `Ctrl+Q` | Quit (so does the X button) |
 
 ---
 

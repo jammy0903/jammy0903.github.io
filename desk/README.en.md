@@ -24,10 +24,10 @@ Press `L` at any time to switch between 한국어 and English.
 | `L` | 한국어 / English |
 | `R` | Restart the current game (or the current level, for the level-based ones) |
 | `,` `.` | **Change level** in the level-based games. `PageUp`/`PageDown` moves 10 |
-| `Ctrl+Q` | Actually quit |
+| `Ctrl+Q` | Quit (so does the window's X button) |
 
-**`Ctrl+Q` is the only way to quit.** `ESC` and the window's X button both hide
-instead of closing, so a board is never lost by accident.
+**`ESC` hides instead of quitting**, so a board is never lost by a panicked keypress.
+To actually quit, use `Ctrl+Q` or the window's X button — either way your progress is saved.
 
 `ESC` and `H` do different jobs:
 
