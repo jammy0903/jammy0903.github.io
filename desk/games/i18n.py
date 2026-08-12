@@ -18,8 +18,7 @@ EN = {
     "새 판": "new game",
     "진행 중 %d점": "in progress, %d pts",
     "게임 오버": "game over",
-    "%s     M 게임 고르기 · ESC 내리기 · %s 꺼내기":
-        "%s     M menu · ESC hide · %s bring back",
+    "M 메뉴": "M menu",
     "ESC 내리기 · %s 꺼내기 · Ctrl+Q 종료":
         "ESC hide · %s bring back · Ctrl+Q quit",
     "%s 로 작업표시줄에서 꺼낸다": "%s brings it back from the taskbar",

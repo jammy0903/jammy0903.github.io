@@ -175,11 +175,14 @@ class Suika(Game):
             r = R[self.cur] * s
             bx, _ = px(self.dx, 0)
             c.create_line(bx, oy, bx, oy + WH * s, fill=LINE)
-            c.create_oval(bx - r, oy - r + 2, bx + r, oy + r + 2,
+            # 통 위로 튀어나가지 않게 안쪽에 그린다
+            cy = oy + r + 1
+            c.create_oval(bx - r, cy - r, bx + r, cy + r,
                           outline=COLORS[self.cur], width=2)
 
         nx = ox + WW * s + 14
         center_text(c, nx + 14, oy + 8, "NEXT", 7, DIM)
-        r = R[self.next_t] * s
+        # 옆 칸이 좁으므로 미리보기는 칸에 맞춰 줄인다. 큰 과일도 넘치지 않게.
+        r = min(R[self.next_t] * s, (side - 16) / 2)
         c.create_oval(nx + 14 - r, oy + 34 - r, nx + 14 + r, oy + 34 + r,
                       fill=COLORS[self.next_t], outline="")

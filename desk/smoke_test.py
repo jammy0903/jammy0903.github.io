@@ -507,6 +507,54 @@ if canvas is not None:
     sh.root.update()
     ok(sh.game.score == 4242, "복귀해도 판 그대로")
 
+    # 화면 검사: 글자끼리 겹치거나 창 밖으로 나가는 게 없어야 한다.
+    # (Flood It 에서 '성공!' 위에 'GAME OVER' 가 겹쳐 나온 적이 있고,
+    #  아래 도움말 줄이 창 폭을 넘어 양끝이 잘린 적도 있다.)
+    def screen_problems(label):
+        sh.draw()
+        cv = sh.canvas
+        texts = []
+        for i in cv.find_all():
+            if cv.type(i) == "text" and cv.itemcget(i, "text").strip():
+                texts.append((cv.itemcget(i, "text"), cv.bbox(i)))
+        found = []
+        for a in range(len(texts)):
+            for b in range(a + 1, len(texts)):
+                (t1, b1), (t2, b2) = texts[a], texts[b]
+                if t1 == t2:            # 배너의 흰 테두리 사본은 일부러 겹친다
+                    continue
+                ix = (max(b1[0], b2[0]), max(b1[1], b2[1]),
+                      min(b1[2], b2[2]), min(b1[3], b2[3]))
+                cover = max(0, ix[2] - ix[0]) * max(0, ix[3] - ix[1])
+                small = min((b1[2] - b1[0]) * (b1[3] - b1[1]),
+                            (b2[2] - b2[0]) * (b2[3] - b2[1]))
+                if cover > 0.5 * small:
+                    found.append("%s: 글자 겹침 %r/%r" % (label, t1[:20], t2[:20]))
+        for i in cv.find_all():
+            bb = cv.bbox(i)
+            if bb and (bb[0] < -2 or bb[1] < -2
+                       or bb[2] > desk.W + 2 or bb[3] > desk.H + 2):
+                found.append("%s: 창 밖 %s" % (label, cv.type(i)))
+        return found
+
+    bad_screens = []
+    for lang in ("ko", "en"):
+        i18n.set_lang(lang)
+        sh.menu = True
+        bad_screens += screen_problems("%s 메뉴" % lang)
+        sh.menu = False
+        for idx, gg in enumerate(sh.games):
+            sh.idx = idx
+            bad_screens += screen_problems("%s %s" % (lang, gg.name))
+            gg.over = True
+            bad_screens += screen_problems("%s %s 끝" % (lang, gg.name))
+            gg.over = False
+    i18n.set_lang("ko")
+    sh.menu = True
+    ok(not bad_screens, "화면 겹침·창 밖 없음 (%d건: %s)"
+       % (len(bad_screens), bad_screens[:2]))
+
+    sh.idx = 1
     sh.game.score = 10
     sh.save()
     fresh = desk.Shell()

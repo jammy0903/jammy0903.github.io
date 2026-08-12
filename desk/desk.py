@@ -36,6 +36,7 @@ from hotkey import GlobalHotkey                              # noqa: E402
 SAVE = os.path.join(os.path.expanduser("~"), ".deskgames.json")
 W, H = 400, 520
 BAR = 26
+HELP = 26               # 아래 도움말 줄에 주는 높이 (두 줄까지 접힌다)
 FPS_MS = 33
 AUTOSAVE_MS = 10000
 ALPHA_MIN, ALPHA_MAX = 0.15, 1.0
@@ -347,16 +348,18 @@ class Shell:
 
         if self.menu:
             self.draw_menu(c)
-            c.create_text(W / 2, H - 9, fill=DIM, font=(FONT, 7),
+            c.create_text(W / 2, H - HELP / 2, fill=DIM, font=(FONT, 7),
+                          width=W - 16, justify="center",
                           text=t("ESC 내리기 · %s 꺼내기 · Ctrl+Q 종료")
                                % hotkey.label(self.hotkey.spec))
             return
 
-        g.draw(c, 0, BAR, W, H - BAR - 18)
+        g.draw(c, 0, BAR, W, H - BAR - HELP)
 
-        c.create_text(W / 2, H - 9, fill=DIM, font=(FONT, 7),
-                      text=t("%s     M 게임 고르기 · ESC 내리기 · %s 꺼내기")
-                           % (t(g.help), hotkey.label(self.hotkey.spec)))
+        # 창 폭을 넘으면 잘려서 양끝이 사라진다. width 를 주면 접힌다.
+        c.create_text(W / 2, H - HELP / 2, fill=DIM, font=(FONT, 7),
+                      width=W - 16, justify="center",
+                      text="%s   ·   %s" % (t(g.help), t("M 메뉴")))
         banner = g.banner
         if banner:
             text, color = banner
