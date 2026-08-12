@@ -242,6 +242,26 @@ if canvas is not None:
        "드래그 중에는 켜졌다 꺼졌다 하지 않음")
     ok(nm.click(5, 5) is False, "판 밖 클릭은 무시")
 
+    # 다 채운 줄은 X 자동
+    af = nonogram.Nonogram()
+    af.n = 5
+    af.sol = [[1, 1, 0, 1, 0], [0, 0, 0, 0, 0], [1, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]]
+    af.row_clues = [nonogram.clues(r) for r in af.sol]
+    af.col_clues = [nonogram.clues([af.sol[r][c] for r in range(5)])
+                    for c in range(5)]
+    af.grid = [[0] * 5 for _ in range(5)]
+    af.paint(0, 0, nonogram.PAINT)
+    ok(af.grid[0][1] == 0, "아직 힌트를 못 채운 줄은 그대로")
+    af.paint(0, 1, nonogram.PAINT)
+    af.paint(0, 3, nonogram.PAINT)
+    ok(af.grid[0] == [1, 1, 2, 1, 2], "힌트를 다 채우면 나머지가 X 로")
+    ok([af.grid[r][1] for r in range(5)] == [1, 2, 2, 2, 2],
+       "세로줄도 같이 채워짐")
+    ok(all(af.grid[r][c] != 2 or not af.sol[r][c]
+           for r in range(5) for c in range(5)),
+       "자동 X 가 정답 칸을 덮지 않음")
+
 for r in range(ng.n):
     for cc in range(ng.n):
         ng.grid[r][cc] = 1 if ng.sol[r][cc] else 0
@@ -283,15 +303,17 @@ ok(floodit.tier(0)[0] < floodit.tier(floodit.LEVELS - 1)[0], "뒤로 갈수록 �
 # 소코반 — 생성한 판이 실제로 풀리는지 탐색으로 확인
 sk = sokoban.Sokoban()
 ok(sokoban.LEVELS == 200, "소코반 200판")
-unsolved = []
-for lv in list(range(0, 60, 6)) + [0, 59]:
-    walls, goals, boxes, man, rows, cols = sokoban.build(lv)
-    floor = {(r, c) for r in range(rows) for c in range(cols)
-             if (r, c) not in walls}
-    d = sokoban.min_pushes(floor, goals, boxes, man)
-    if not d:
-        unsolved.append(lv)
-ok(not unsolved, "소코반 표본 전부 풀림 (실패 %s)" % unsolved[:3])
+# 당긴 수순을 뒤집어 실제로 밀어 본다 — 전수 검사도 10초면 끝난다
+unsolved = [lv + 1 for lv in range(sokoban.LEVELS) if not sokoban.verify(lv)]
+ok(not unsolved, "소코반 200판 전부 풀림 (실패 %s)" % unsolved[:3])
+
+walls, goals, boxes, man, rows, cols, log = sokoban.build(0, trace=True)
+ok(log and len(boxes) == len(goals), "생성 기록이 남아 있음")
+floor = {(r, c) for r in range(rows) for c in range(cols)
+         if (r, c) not in walls}
+ok(sokoban.min_pushes(floor, goals, boxes, man), "탐색으로도 1판은 풀림")
+ok(sokoban.spread(goals, goals) == 0, "다 푼 판은 거리 0")
+ok(sokoban.spread(boxes, goals) > 0, "만든 판은 목표에서 떨어져 있음")
 ok(sokoban.build(120)[0] == sokoban.build(120)[0], "같은 레벨은 같은 판")
 
 sk.walls, sk.goals, sk.boxes, sk.man = set(), {(0, 3)}, {(0, 2)}, (0, 1)

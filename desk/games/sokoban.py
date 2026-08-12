@@ -32,6 +32,12 @@ def tier(level):
     return 9, 9, 4, 24
 
 
+def spread(boxes, goals):
+    """상자들이 목표에서 얼마나 떨어져 있나. 클수록 어려운 판이다."""
+    return sum(min(abs(r - gr) + abs(c - gc) for gr, gc in goals)
+               for r, c in boxes)
+
+
 def neighbors(cell):
     r, c = cell
     return [(r + dr, c + dc) for dr, dc in DIRS]
@@ -81,10 +87,12 @@ def min_pushes(floor, goals, boxes, man, cap=60000):
     return None
 
 
-def build(level):
+def build(level, trace=False):
     """레벨 번호로 판 하나. (벽, 목표, 상자, 사람, 세로, 가로).
 
     같은 번호는 언제나 같은 판이다.
+    trace=True 면 당긴 기록도 함께 돌려준다 — 뒤집으면 그대로 정답이라
+    탐색 없이도 '이 판이 풀린다'를 증명할 수 있다(verify 참고).
     """
     rows, cols, nbox, need = tier(level)
     rnd = random.Random(4211 + level * 6421)
@@ -112,7 +120,8 @@ def build(level):
 
         # 3. 거꾸로 당겨서 흐트러뜨리기
         pulls = 0
-        for _ in range(30 + level // 2):
+        log = []
+        for _ in range(30 + level):
             area = reachable(floor, boxes, man)
             picks = []
             for box in boxes:
@@ -124,7 +133,19 @@ def build(level):
                         picks.append((box, back, stand))
             if not picks:
                 break
-            box, back, stand = picks[rnd.randrange(len(picks))]
+            # 그냥 무작위로 당기면 상자가 갔다 왔다 하면서 서로 상쇄돼
+            # 목표 바로 옆에 머문다. 대체로 '목표에서 멀어지는' 당기기를
+            # 고르되, 가끔 무작위를 섞어 판이 뻔해지지 않게 한다.
+            if rnd.random() < 0.8:
+                best_pick, best_far = None, None
+                for cand in picks:
+                    moved = (boxes - {cand[0]}) | {cand[1]}
+                    far = spread(moved, goals)
+                    if best_far is None or far > best_far:
+                        best_pick, best_far = cand, far
+                box, back, stand = best_pick
+            else:
+                box, back, stand = picks[rnd.randrange(len(picks))]
             # 당기기: 사람이 back(자기 자리)에서 stand로 물러나면서 상자를
             # box → back 으로 끌고 온다. 사람은 stand에 선다.
             # (여기서 man = box 로 두면 사람이 상자를 넘어가 버려서
@@ -132,6 +153,7 @@ def build(level):
             boxes.discard(box)
             boxes.add(back)
             man = stand
+            log.append((box, back, stand))
             if back not in goals:
                 pulls += 1
 
@@ -139,19 +161,45 @@ def build(level):
             continue                        # 하나도 안 움직였다
         walls = {(r, c) for r in range(rows) for c in range(cols)
                  if (r, c) not in floor}
-        cand = (pulls, walls, goals, boxes, man, rows, cols)
-        if best is None or pulls > best[0]:
+        # 여러 번 만들어 보고 '가장 멀리 흩어진' 판을 고른다.
+        # 당긴 횟수보다 실제로 벌어진 거리가 난이도에 더 잘 맞는다.
+        cand = (spread(boxes, goals), walls, goals, boxes, man, rows, cols, log)
+        if best is None or cand[0] > best[0]:
             best = cand
-        if pulls >= need:
+        if pulls >= need and cand[0] >= need:
             break
 
     if best is not None:
-        return best[1:]
+        return best[1:] if trace else best[1:-1]
 
     # 여기까지 오는 일은 거의 없다. 아주 단순한 판으로 대신한다.
     floor = {(1, c) for c in range(1, 5)}
     walls = {(r, c) for r in range(3) for c in range(6) if (r, c) not in floor}
-    return walls, {(1, 1)}, {(1, 2)}, (1, 3), 3, 6
+    plain = (walls, {(1, 1)}, {(1, 2)}, (1, 3), 3, 6)
+    return plain + ([((1, 1), (1, 2), (1, 3))],) if trace else plain
+
+
+def verify(level):
+    """당긴 기록을 뒤집어 실제로 밀어 보고, 상자가 목표에 다 오르는지 본다.
+
+    탐색이 아니라 '만들 때 쓴 수순'을 그대로 되짚는 것이라 즉시 끝난다.
+    도중에 한 수라도 규칙에 어긋나면 False.
+    """
+    walls, goals, boxes, man, rows, cols, log = build(level, trace=True)
+    floor = {(r, c) for r in range(rows) for c in range(cols)
+             if (r, c) not in walls}
+    boxes, man = set(boxes), man
+    for box, back, stand in reversed(log):
+        # 당길 때 상자는 box → back, 사람은 back → stand 였다.
+        # 되짚으면 사람이 stand → back 으로 가서 상자를 back → box 로 민다.
+        if back not in boxes or box in boxes or box not in floor:
+            return False
+        if stand not in reachable(floor, boxes, man):
+            return False
+        boxes.discard(back)
+        boxes.add(box)
+        man = back
+    return boxes == set(goals)
 
 
 class Sokoban(Game):
