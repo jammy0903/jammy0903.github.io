@@ -56,6 +56,7 @@ class Shell:
         self.pick = 0
         self.alpha = 0.55
         self.faded = False
+        self.stashed = False        # 작업표시줄로 내려가 있나
         self.lang = "ko"
         self.load()
         i18n.set_lang(self.lang)
@@ -79,7 +80,10 @@ class Shell:
         self.canvas.bind("<B3-Motion>", lambda e: self.on_drag(e, button=3))
         self.root.bind("<Key>", self.on_key)
         self.root.bind("<Control-q>", lambda e: self.quit())
+        # 창 상태는 직접 추적한다. root.state() 는 환경에 따라 내려가 있어도
+        # "normal" 을 돌려줘서, 그것만 믿으면 숨긴 채로 게임이 계속 돌아간다.
         self.root.bind("<Unmap>", self.on_unmap)
+        self.root.bind("<Map>", self.on_map)
         self.root.protocol("WM_DELETE_WINDOW", self.quit)
 
         # 작업표시줄로 내려가 있는 동안에는 창이 키를 못 받으므로 전역 단축키가 필요하다
@@ -90,6 +94,11 @@ class Shell:
         self.root.after(AUTOSAVE_MS, self.autosave)
 
     @property
+    def paused(self):
+        """화면에서 안 보이는 동안에는 시간이 흐르지 않는다."""
+        return self.faded or self.stashed
+
+    @property
     def game(self):
         return self.games[self.idx]
 
@@ -98,14 +107,16 @@ class Shell:
 
     # --- 내리기 / 꺼내기 ---
     def stash(self):
-        """작업표시줄로. 프로그램은 계속 돌고 판도 그대로다."""
+        """작업표시줄로. 프로그램은 계속 돌고 판은 그 자리에 멈춘다."""
         self.save()
         self.faded = False
+        self.stashed = True
         self.apply_alpha()
         self.root.iconify()
 
     def restore(self):
         self.faded = False
+        self.stashed = False
         self.apply_alpha()
         self.root.deiconify()
         self.root.lift()
@@ -114,9 +125,15 @@ class Shell:
         except tk.TclError:
             pass
 
-    def on_unmap(self, _e):
-        """내려갈 때는 항상 저장해 둔다. 어떻게 내려가든 기록이 남도록."""
-        self.save()
+    def on_unmap(self, e):
+        """작업표시줄 단추로 내려도 여기로 온다. 저장하고 게임을 멈춘다."""
+        if e.widget is self.root:
+            self.stashed = True
+            self.save()
+
+    def on_map(self, e):
+        if e.widget is self.root:
+            self.stashed = False
 
     # --- 저장 ---
     def load(self):
@@ -302,14 +319,14 @@ class Shell:
     # --- 루프 ---
     def loop(self):
         self.hotkey.poll()
-        if not self.faded and self.root.state() == "normal":
-            if not self.menu:
+        if not self.paused:
+            if not self.menu:            # 메뉴가 떠 있을 때도 멈춘다
                 self.game.tick(FPS_MS / 1000.0)
             self.draw()
         self.root.after(FPS_MS, self.loop)
 
     def draw(self):
-        if self.faded:
+        if self.paused:
             return
         c = self.canvas
         c.delete("all")

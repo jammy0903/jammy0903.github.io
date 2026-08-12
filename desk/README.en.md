@@ -54,6 +54,12 @@ To actually quit, use `Ctrl+Q` or the window's X button — either way your prog
 - `H` — the window stays exactly where it is and merely becomes invisible. It still
   receives keys, so a single `H` brings it straight back. This one is faster.
 
+**Either way, time stops while it is out of sight.** Blocks stop falling, fruit stops
+rolling. Hiding in a hurry shouldn't cost you the game you come back to.
+(Asking tkinter for `state()` isn't reliable — on some setups a minimised window still
+reports `normal`, and the game keeps running. The window state is tracked through
+`<Map>`/`<Unmap>` instead.)
+
 ## The games
 
 | # | Game | Controls |

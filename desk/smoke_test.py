@@ -437,16 +437,52 @@ if canvas is not None:
     sh.menu = True
     sh.set_alpha(before)
 
+    # 화면에서 안 보이는 동안에는 시간이 멈춰야 한다.
+    # root.state() 는 환경에 따라 내려가 있어도 "normal" 을 돌려주므로
+    # 창 상태를 직접 추적한다 — 그것만 믿었더니 숨긴 채로 계속 돌아갔다.
+    sh.idx, sh.menu = 0, False          # 테트리스(중력이 있는 게임)
+    tick = sh.games[0]
+    sh.root.update()
+
+    def run(n=60):
+        for _ in range(n):
+            if not sh.paused and not sh.menu:
+                tick.tick(0.033)
+
+    ok(not sh.paused, "보일 때는 안 멈춤")
+    where = tick.pr
+    run()
+    ok(tick.pr != where, "보일 때는 블록이 떨어짐")
+
+    sh.stash()
+    sh.root.update()
+    ok(sh.paused, "내려가면 멈춤 상태")
+    where = tick.pr
+    run()
+    ok(tick.pr == where, "작업표시줄에 내려가 있는 동안 블록이 안 떨어짐")
+
+    sh.restore()
+    sh.root.update()
+    ok(not sh.paused, "꺼내면 다시 흐름")
+    where = tick.pr
+    run()
+    ok(tick.pr != where, "복귀하면 블록이 다시 떨어짐")
+
+    sh.faded = True
+    where = tick.pr
+    run()
+    ok(sh.paused and tick.pr == where, "H 로 숨긴 동안에도 멈춤")
+    sh.faded = False
+
+    sh.idx = 1
     sh.game.score = 4242
     sh.stash()
-    ok(sh.root.state() == "iconic", "ESC로 작업표시줄에 내려감")
     ok(sh.root.winfo_exists(), "내려가도 프로그램은 살아 있음")
     ok(sh.game.score == 4242, "내려가도 진행 점수 유지")
     ok(os.path.exists(desk.SAVE), "내려갈 때 저장됨")
 
     sh.restore()
     sh.root.update()
-    ok(sh.root.state() == "normal", "다시 화면으로 복귀")
     ok(sh.game.score == 4242, "복귀해도 판 그대로")
 
     sh.game.score = 10
