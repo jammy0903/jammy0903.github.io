@@ -5,14 +5,14 @@ import random
 from .base import DIM, Game, LINE, PANEL, center_text
 
 WW, WH = 250.0, 330.0          # 통 안쪽 크기(월드 좌표)
-DANGER = 34.0                  # 이 선 위에 과일이 얹혀 있으면 위험
+DANGER = 46.0                  # 이 선 위에 과일이 얹혀 있으면 위험
 GRAVITY = 900.0
 SUB_DT = 1.0 / 120.0
 SUBSTEPS = 4
 RELAX = 4
 DAMP = 0.995
 DROP_DELAY = 0.30
-OVER_DELAY = 1.6
+OVER_DELAY = 1.2
 
 R = [9, 12, 15, 19, 24, 29, 35, 41, 48, 56, 65]
 COLORS = ["#c94f4f", "#d97b3f", "#c9a227", "#d6d24a", "#8fc44a", "#4caf6a",

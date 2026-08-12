@@ -4,6 +4,7 @@
   L            한국어 / English 전환
   M            게임 고르기 (↑↓ + Enter). 처음 켜면 이 화면부터
   1 ~ 9        게임 바로 가기
+  , .          레벨 있는 게임에서 판 넘기기 (PageUp/PageDown 은 10판씩)
   [ ]          흐리게 / 진하게 (메뉴 화면의 바를 마우스로 끌어도 된다)
   ESC          작업표시줄로 내리기 (프로그램은 계속 돈다)
   F8           작업표시줄에서 다시 꺼내기 (윈도우 전역 단축키)
@@ -283,6 +284,10 @@ class Shell:
             self.choose(int(k) - 1)
         elif k in ("r", "R"):
             self.game.reset()
+        elif k in ("comma", "less", "period", "greater", "Prior", "Next"):
+            step = 10 if k in ("Prior", "Next") else 1
+            back = k in ("comma", "less", "Prior")
+            self.game.jump(-step if back else step)
         else:
             self.game.key(k)
         self.draw()

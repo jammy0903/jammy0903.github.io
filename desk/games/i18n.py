@@ -38,19 +38,19 @@ EN = {
         "Arrows move one step · 1+2=3 · from 3 on, equal numbers",
     "방향키 커서 · Space 놓기 · S 보관칸 교체":
         "Arrows move · Space place · S swap storage",
-    "방향키 · Space 칠하기 · X 표시 · Enter 다음 판 · R 이 판 다시":
-        "Arrows · Space fill · X mark · Enter next · R retry",
-    "← → 색 고르기 · Space 칠하기 · R 이 판 다시":
-        "Left/Right pick colour · Space flood · R retry",
-    "방향키로 밀기 · U 무르기 · R 이 판 다시 · Enter 다음 판":
-        "Arrows push · U undo · R retry · Enter next",
+    "방향키 · Space 칠하기 · X 표시 · S 판 크기 · , . 판 넘기기":
+        "Arrows · Space fill · X mark · S board size · , . change puzzle",
+    "← → 색 고르기 · Space 칠하기 · , . 단계 넘기기":
+        "Left/Right pick colour · Space flood · , . change stage",
+    "방향키로 밀기 · U 무르기 · , . 판 넘기기 · Enter 다음 판":
+        "Arrows push · U undo · , . change level · Enter next",
 
     # 게임 안
     "%d연쇄": "%d chain",
     "가장 큰 수 %d": "highest %d",
     "놓을 것": "next",
     "보관 S": "hold S",
-    "%d / %d 판   %dx%d": "%d / %d   %dx%d",
+    "%d / %d 판   %dx%d  (S 크기)": "%d / %d   %dx%d  (S size)",
     "완성! Enter 로 다음 판": "Solved! Enter for next",
     "%d단계   %d / %d 칸   남은 횟수 %d": "stage %d   %d / %d cells   %d moves left",
     "성공! Enter 로 다음": "Cleared! Enter for next",

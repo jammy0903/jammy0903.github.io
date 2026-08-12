@@ -23,6 +23,7 @@ Press `L` at any time to switch between 한국어 and English.
 | `[` `]` | Dimmer / brighter — or drag the opacity slider on the menu screen |
 | `L` | 한국어 / English |
 | `R` | Restart the current game (or the current level, for the level-based ones) |
+| `,` `.` | **Change level** in the level-based games. `PageUp`/`PageDown` moves 10 |
 | `Ctrl+Q` | Actually quit |
 
 **`Ctrl+Q` is the only way to quit.** `ESC` and the window's X button both hide
@@ -45,7 +46,7 @@ instead of closing, so a board is never lost by accident.
 | 4 | 2048 | arrows |
 | 5 | Threes! | arrows |
 | 6 | Triple Town | arrows move · `Space` place · `S` swap storage |
-| 7 | Nonogram | arrows · `Space` fill · `X` mark · `Enter` next puzzle |
+| 7 | Nonogram | arrows · `Space` fill · `X` mark · **`S` board size** · `Enter` next |
 | 8 | Flood It | `←` `→` pick colour · `Space` flood · `Enter` next stage |
 | 9 | Sokoban | arrows push · `U` undo · `Enter` next level |
 
@@ -53,15 +54,19 @@ instead of closing, so a board is never lost by accident.
 
 | Game | Count | How it gets harder |
 | --- | --- | --- |
-| Nonogram | **500 puzzles** | 10x10 → 15x15; density drifts toward 0.5 so clues say less |
-| Sokoban | **200 levels** | bigger rooms, 1 → 4 boxes, deeper scrambles |
-| Flood It | **60 stages** | 8x8/4 colours → 18x18/6 colours, move slack 7 → 2 |
-| Tetris | endless | a level every 10 lines: faster drops, bigger score multiplier |
-| Puyo Puyo | endless | a level every 30 puyos popped |
+| Nonogram | **500 per size** | `S` picks 10x10 · 15x15 · 20x20; density drifts so clues say less |
+| Sokoban | **200 levels** | bigger rooms, 2 → 4 boxes, deeper scrambles |
+| Flood It | **60 stages** | 11x11/5 colours → 20x20/6 colours, move slack 5 → 1 |
+| Tetris | endless | a level every 8 lines: faster drops, bigger score multiplier |
+| Puyo Puyo | endless | a level every 24 puyos popped, with 5 colours |
 | the rest | endless | until the board fills up |
 
 In the three level-based games, **`R` retries the current level only** — hard-won
-progress is never thrown away.
+progress is never thrown away — and **`,` `.` jump straight to any level.** Shipping
+500 puzzles you can only reach one at a time would be pointless.
+
+Nonogram keeps **separate progress per size**, so switching to 20x20 and back leaves
+your 10x10 puzzle exactly where it was.
 
 Levels are **not stored as 500 data files.** Each one is generated from its level
 number as the random seed, so level 300 is always the same puzzle and the program
@@ -96,7 +101,7 @@ Delete the file to reset everything.
 - **Suika** — same fruit twice makes the next one, 11 tiers. The physics is Verlet
   integration with positional (PBD) constraints, so fruit settles instead of bouncing.
   A fruit resting above the dashed line for 1.6 s ends the game.
-- **Puyo Puyo** — 6x12. Four of a colour orthogonally connected pop, the rest falls,
+- **Puyo Puyo** — 6x12 with 5 colours. Four of a colour orthogonally connected pop, the rest falls,
   and the chain multiplier climbs steeply.
 - **2048** — standard; new tiles are 2 (90%) or 4 (10%).
 - **Threes!** — everything moves exactly one cell. `1+2=3`, and from 3 on only equal
@@ -153,8 +158,8 @@ Level checks run on a sample. For the exhaustive nonogram run:
 ```bash
 python3 -c "
 from games import nonogram as n
-print(sum(n.line_solve(*n.make(i)[1:], n.size_for(i)) == n.make(i)[0]
-          for i in range(n.LEVELS)), '/', n.LEVELS)"
+print(sum(n.line_solve(*n.make(s, i)[1:], s) == n.make(s, i)[0]
+          for s in n.SIZES for i in range(n.LEVELS)))"
 ```
 
 ## Layout
