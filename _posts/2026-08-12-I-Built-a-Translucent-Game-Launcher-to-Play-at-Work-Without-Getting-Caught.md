@@ -16,10 +16,13 @@ So I built one. **A translucent launcher that sits quietly on top of your work a
 drops into the taskbar with one press of `ESC`.** Nine games in a single window,
 using nothing but the Python standard library (tkinter) — nothing to install.
 
-> **[⬇ Download (zip, 49KB)]({{ '/assets/files/desk.zip' | relative_url }})** ·
-> [Browse the source]({{ '/desk/' | relative_url }})
+> **[⬇ Get desk.exe (11MB)]({{ '/assets/files/desk.exe' | relative_url }})** —
+> no Python needed, just double-click it. [Pin it to the taskbar](#pin-it-to-the-taskbar)
+> and it opens with one click.
 >
-> Unzip, double-click `desk.bat`. You only need Python installed.
+> [Source zip (58KB)]({{ '/assets/files/desk.zip' | relative_url }}) ·
+> [Browse the source]({{ '/desk/' | relative_url }}) ·
+> [GitHub Releases](https://github.com/jammy0903/jammy0903.github.io/releases/latest)
 
 ---
 
@@ -70,7 +73,16 @@ need `F8` to get it back. `H` **leaves the window exactly where it is and just s
 opacity to zero.** It still receives keys, so one more `H` brings it straight back.
 Much faster to react with.
 
-### 4. Not always-on-top
+### 4. Pin it to the taskbar
+
+Run `desk.exe` once, right-click its taskbar icon, *Pin to taskbar*. From then on it
+looks like just another program that lives there. The icon is deliberately plain.
+
+The exe is a single PyInstaller file, so **copying that one file to a machine without
+Python is enough.** Its icon is written by `make_icon.py` — raw ICO bytes from the
+standard library, no image tooling.
+
+### 5. Not always-on-top
 
 I had it always-on-top at first and removed it. Other windows *should* cover it —
 the goal is to look like one more window layered into your work, not a floating panel.
