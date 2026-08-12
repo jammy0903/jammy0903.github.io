@@ -5,9 +5,12 @@ subtitle: "반투명 창 하나에 테트리스·수박게임·뿌요뿌요·204
 description: "회사에서 몰래, 눈치 안 보고 할 수 있는 월루게임 모음. 반투명 창에 9개가 들어있고 ESC 한 번이면 숨겨짐. 설치 없이 무료 다운로드. 파이썬 기본 라이브러리만 사용."
 ---
 
-**[⬇ 다운로드 (zip, 49KB)]({{ '/assets/files/desk.zip' | relative_url }})**
+**[⬇ desk.exe 받기 (11MB)]({{ '/assets/files/desk.exe' | relative_url }})** ·
+[소스 zip (58KB)]({{ '/assets/files/desk.zip' | relative_url }}) ·
+[GitHub Releases](https://github.com/jammy0903/jammy0903.github.io/releases/latest)
 
-압축 풀고 `desk.bat` 더블클릭. 파이썬만 있으면 됨. 설치·회원가입·인터넷 전부 필요 없음.
+exe 는 받아서 더블클릭만 하면 됨. **파이썬 없어도 되고, 설치·회원가입·인터넷 전부 필요 없음.**
+작업표시줄 아이콘 오른쪽 클릭 → "작업 표시줄에 고정" 해 두면 클릭 한 번으로 열림.
 
 만든 이야기 →
 [한국어 글]({{ '/2026-08-12-회사에서-몰래-게임하려고-반투명-게임-9개를-만들었다/' | relative_url }}) ·
