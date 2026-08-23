@@ -160,12 +160,24 @@ subtitle: "마크다운으로 블로그 포스트를 작성하고 바로 발행�
 const REPO_OWNER  = 'jammy0903';
 const REPO_NAME   = 'jammy0903.github.io';
 const BRANCH      = 'main';
-const GH_TOKEN    = 'REDACTED_GITHUB_TOKEN';
+const TOKEN_KEY   = 'gh_token_v1';   // 토큰은 절대 커밋하지 않는다. 발행할 때 입력받아 세션에만 보관.
 const STORAGE_KEY   = 'blog_pw_v2';
 const SESSION_KEY   = 'blog_session_v2';
 const SESSION_TTL   = 60 * 60 * 1000; // 1시간
 
 let easyMDE = null;
+
+/* ── GitHub 토큰 (세션 한정) ── */
+function getToken() {
+  let token = sessionStorage.getItem(TOKEN_KEY);
+  if (!token) {
+    token = prompt('GitHub Personal Access Token을 입력하세요 (contents:write 권한, 이 탭에서만 유지됩니다)');
+    if (!token) return null;
+    sessionStorage.setItem(TOKEN_KEY, token.trim());
+    token = token.trim();
+  }
+  return token;
+}
 
 /* ── SHA-256 ── */
 async function sha256(text) {
@@ -301,6 +313,9 @@ async function submitPost() {
   const fullText = buildFrontMatter() + content;
   const encoded  = btoa(unescape(encodeURIComponent(fullText)));
 
+  const ghToken = getToken();
+  if (!ghToken) { showStatus('error', '❌ 토큰이 없어 발행할 수 없습니다.'); return; }
+
   showStatus('info', '⏳ 발행 중...');
 
   try {
@@ -309,7 +324,7 @@ async function submitPost() {
       {
         method: 'PUT',
         headers: {
-          'Authorization': 'token ' + GH_TOKEN,
+          'Authorization': 'token ' + ghToken,
           'Content-Type': 'application/json',
           'Accept': 'application/vnd.github+json',
         },
