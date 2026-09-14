@@ -1,23 +1,24 @@
 ---
 layout: post
-title: "I Built a Translucent Game Launcher to Play at Work Without Getting Caught"
-subtitle: "Nine games to play at work without getting caught — Tetris, Suika, Puyo Puyo, 2048, Nonogram. One key hides it to the taskbar, and there is nothing to install"
+title: "Building a Nine-Game Desktop Launcher with Python and tkinter"
+subtitle: "Mini-games for short breaks, with procedural puzzles, physics, and a shared GUI architecture"
 date: 2026-08-12 21:00:00 +0900
 categories: blog
-tags: ['games-at-work', 'stealth-game', 'office-games', 'boss-key', 'python', 'tkinter', 'side-project', 'tetris', 'nonogram', 'sokoban', 'procedural-generation']
-description: "A translucent game launcher for playing at work without getting caught. Nine games — Tetris, Suika, Puyo Puyo, 2048, Nonogram and more — in one window that hides to the taskbar with one key. Python standard library only, no install, free download."
+tags: ['python', 'tkinter', 'gui', 'game-development', 'side-project', 'nonogram', 'sokoban', 'procedural-generation', 'algorithms']
+description: "A nine-game desktop launcher built with the Python standard library. Explore its shared GUI architecture, procedural puzzle generation and validation, physics, state persistence, and standalone distribution."
 ---
 
-You want to goof off for five minutes at work, but opening a game is obvious.
-A browser game leaves a conspicuous tab. Alt-tabbing swaps the whole screen, which
-anyone walking past can see instantly.
+**desk brings nine mini-games into one desktop window for short breaks.**
+Switch between games, close the application, and return to the saved boards later.
+It runs offline, and the Windows executable does not require a Python installation.
 
-So I built one. **A translucent launcher that sits quietly on top of your work and
-drops into the taskbar with one press of `ESC`.** Nine games in a single window,
-using nothing but the Python standard library (tkinter) — nothing to install.
+The implementation uses Python's standard library, with tkinter for the interface.
+As a development project, it combines a shared game interface, procedural puzzle
+generation and validation, physics, and desktop event handling. This post covers
+the application and the implementation problems solved along the way.
 
 > **[⬇ Get desk.exe (11MB)]({{ '/assets/files/desk.exe' | relative_url }})** —
-> no Python needed, just double-click it. [Pin it to the taskbar](#pin-it-to-the-taskbar)
+> no Python needed, just double-click it. [Pin it to the taskbar](#standalone-distribution)
 > and it opens with one click.
 >
 > [Source zip (58KB)]({{ '/assets/files/desk.zip' | relative_url }}) ·
@@ -46,60 +47,28 @@ own progress.
 
 ---
 
-## The point isn't the games — it's the hiding
+## Window controls and distribution
 
-Games are everywhere. The reason this exists is **not getting caught.**
+### Adjustable opacity
 
-### 1. Translucency
+Opacity defaults to 55% and can be adjusted with `[` `]` or the menu slider.
+This is a window display setting that users can adjust to their preference.
 
-55% by default, adjustable with `[` `]` or by **dragging the opacity slider** on the
-menu screen. Down at 20% the document behind it shows through and a sideways glance
-catches nothing.
+### Minimize and restore
 
-It never darkens the background, so the screen doesn't visibly dim either.
+`ESC` minimizes the window to the taskbar while preserving the board and score.
+`F8` restores it. Quitting is a separate action: `Ctrl+Q` or the window's close button.
 
-### 2. `ESC` sends it to the taskbar
+`H` toggles between zero opacity and the previous display state without moving the
+window. It still receives keyboard input while transparent, so minimizing is the
+clearer choice when switching to another application.
 
-`ESC` **doesn't quit — it drops the window to the taskbar.** Your board and score
-survive. `F8` brings it back.
+### Standalone distribution
 
-`ESC` deliberately isn't quit — panic-pressing it shouldn't cost you a board.
-To actually close it, `Ctrl+Q` or the window's X button. Either way progress is saved.
-
-### 3. `H` is the fast one
-
-This is what you actually end up using. `ESC` genuinely minimises the window, so you
-need `F8` to get it back. `H` **leaves the window exactly where it is and just sets
-opacity to zero.** It still receives keys, so one more `H` brings it straight back.
-Much faster to react with.
-
-### 4. Pin it to the taskbar
-
-Run `desk.exe` once, right-click its taskbar icon, *Pin to taskbar*. From then on it
-looks like just another program that lives there. The icon is deliberately plain.
-
-The exe is a single PyInstaller file, so **copying that one file to a machine without
-Python is enough.** Its icon is written by `make_icon.py` — raw ICO bytes from the
-standard library, no image tooling.
-
-### 5. Not always-on-top
-
-I had it always-on-top at first and removed it. Other windows *should* cover it —
-the goal is to look like one more window layered into your work, not a floating panel.
-
----
-
-## Being honest about what it can't do
-
-Worth stating plainly:
-
-- **It does not defeat monitoring software.** Screen capture, process monitoring —
-  this program does nothing about any of it. It's an ordinary window.
-- **The process name is not disguised.** Task Manager shows `pythonw.exe`.
-
-I deliberately left that out. This is for dodging a glance from the next desk, not
-for getting around a company's security policy. That's a different thing, and not
-one I'm going to build.
+Run `desk.exe`, right-click its taskbar icon, and choose **Pin to taskbar**.
+The executable is packaged as a single file with PyInstaller. `make_icon.py` writes
+ICO data using the standard library, without additional image tooling.
+The window is not always-on-top and follows ordinary desktop window switching.
 
 ---
 
@@ -243,7 +212,7 @@ About 2,800 lines total. Zero external dependencies.
 |---|---|
 | `ESC` | **Drop to taskbar** (does not quit) |
 | `F8` | **Bring it back** |
-| `H` | Opacity to zero (fastest) |
+| `H` | Toggle zero opacity / previous display state |
 | `M` | Game menu |
 | `1`–`9` | Jump to a game |
 | `[` `]` | Dimmer / brighter (or drag the slider in the menu) |
@@ -254,4 +223,12 @@ About 2,800 lines total. Zero external dependencies.
 
 ---
 
-Enjoy your five minutes.
+## Development experience covered
+
+- **Architecture:** a common game interface separates individual games from the launcher.
+- **Algorithms:** a Nonogram solver and reverse Sokoban generation address puzzle solvability.
+- **Validation:** generated boards, physics behavior, and global hotkey handling are checked and debugged.
+- **Usability:** automatic state persistence, language switching, and standalone packaging support everyday use.
+
+[Download desk.exe]({{ '/assets/files/desk.exe' | relative_url }}) or
+[browse the source]({{ '/desk/' | relative_url }}) to explore the implementation.
