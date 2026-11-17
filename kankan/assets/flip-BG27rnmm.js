@@ -1,4 +1,4 @@
-import{d as O,u as i,c as q}from"./i18n-CJwNO3QA.js";import{m as A,s as j,p as E,a as P}from"./flip-DzsvCKb-.js";const C=["easy","normal","hard"],s=O();let p="normal";try{const t=localStorage.getItem("flip.level");t&&C.includes(t)&&(p=t)}catch{}let f=null,S=0,a={mask:0,left:0},v=[],c=null,x=!1,d="";const H=document.querySelector("#flip");H.innerHTML=`
+import{d as O,u as i,c as q}from"./i18n-BOBKQ2qi.js";import{m as A,s as j,p as E,a as P}from"./flip-DzsvCKb-.js";const C=["easy","normal","hard"],s=O();let p="normal";try{const t=localStorage.getItem("flip.level");t&&C.includes(t)&&(p=t)}catch{}let f=null,S=0,a={mask:0,left:0},v=[],c=null,x=!1,d="";const H=document.querySelector("#flip");H.innerHTML=`
   <div class="fl">
     <header class="fl-head"><h1>${i(s,"fl.title")}</h1><a href="./index.html">${i(s,"fl.back")}</a></header>
     <div class="fl-levels">${C.map(t=>`<button data-lv="${t}">${i(s,`pz.lv.${t}`)}</button>`).join("")}</div>
